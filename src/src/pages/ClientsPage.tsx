@@ -11,6 +11,7 @@ import { SkeletonRows } from '@/components/ui/Skeleton'
 import { Badge } from '@/components/ui/Badge'
 import { formatClientName, formatDateTime } from '@/lib/format'
 import { queryKeys } from '@/lib/queryKeys'
+import { ui } from '@/lib/uiClasses'
 
 export function ClientsPage() {
   const [search, setSearch] = useState('')
@@ -36,7 +37,7 @@ export function ClientsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+          <Search className={ui.feedback.searchIcon} />
           <Input
             aria-label="Search clients"
             className="pl-9"
@@ -48,10 +49,7 @@ export function ClientsPage() {
             }}
           />
         </div>
-        <Link
-          to="/clients/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
-        >
+        <Link to="/clients/new" className={ui.button.newClient}>
           <Plus className="h-4 w-4" />
           New client
         </Link>
@@ -74,10 +72,7 @@ export function ClientsPage() {
                 : 'Create your first client to get started.'
             }
             action={
-              <Link
-                to="/clients/new"
-                className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-              >
+              <Link to="/clients/new" className={ui.button.secondary}>
                 Create client
               </Link>
             }
@@ -86,7 +81,7 @@ export function ClientsPage() {
           <>
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
-                <thead className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                <thead className={ui.table.head}>
                   <tr>
                     <th className="px-3 py-3 font-medium">Client</th>
                     <th className="px-3 py-3 font-medium">Phone</th>
@@ -95,13 +90,13 @@ export function ClientsPage() {
                     <th className="px-3 py-3 font-medium">Last contact</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className={ui.table.body}>
                   {clientsQuery.data?.items.map((client) => (
-                    <tr key={client.clientId} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <tr key={client.clientId} className={ui.table.row}>
                       <td className="px-3 py-3">
                         <Link
                           to={`/clients/${client.clientId}`}
-                          className="font-medium text-slate-900 hover:text-indigo-600 dark:text-slate-100 dark:hover:text-indigo-400"
+                          className={ui.link.item}
                         >
                           {formatClientName(
                             client.firstName,
@@ -115,7 +110,7 @@ export function ClientsPage() {
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-3 py-3 text-slate-600 dark:text-slate-300">
+                      <td className={`px-3 py-3 ${ui.text.secondary}`}>
                         {client.primaryPhone || '—'}
                       </td>
                       <td className="px-3 py-3">
@@ -123,10 +118,10 @@ export function ClientsPage() {
                           {client.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </td>
-                      <td className="px-3 py-3 text-slate-600 dark:text-slate-300">
+                      <td className={`px-3 py-3 ${ui.text.secondary}`}>
                         {client.activePlanName || '—'}
                       </td>
-                      <td className="px-3 py-3 text-slate-600 dark:text-slate-300">
+                      <td className={`px-3 py-3 ${ui.text.secondary}`}>
                         {formatDateTime(client.lastContactedAt)}
                       </td>
                     </tr>
@@ -135,8 +130,8 @@ export function ClientsPage() {
               </table>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+            <div className={`mt-5 flex flex-wrap items-center justify-between gap-3 ${ui.table.footer}`}>
+              <p className={ui.text.mutedSm}>
                 {clientsQuery.isFetching ? 'Refreshing… ' : null}
                 {clientsQuery.data?.totalCount ?? 0} total clients
               </p>
@@ -148,7 +143,7 @@ export function ClientsPage() {
                 >
                   Previous
                 </Button>
-                <span className="text-sm text-slate-500 dark:text-slate-400">
+                <span className={ui.text.mutedSm}>
                   Page {page} of {totalPages}
                 </span>
                 <Button

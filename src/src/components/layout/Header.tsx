@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 interface HeaderProps {
   title: string
@@ -9,14 +11,10 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, actions }: HeaderProps) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
+    <header className={ui.surface.header}>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
-        ) : null}
+        <h1 className={ui.text.pageTitle}>{title}</h1>
+        {subtitle ? <p className={cn('mt-1', ui.text.mutedSm)}>{subtitle}</p> : null}
       </div>
       <div className="flex items-center gap-3">
         {actions}

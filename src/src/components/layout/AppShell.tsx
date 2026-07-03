@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
+import { ui } from '@/lib/uiClasses'
 
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   '/': {
@@ -33,7 +34,7 @@ export function AppShell() {
   const meta = getPageMeta(pathname)
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className={`flex min-h-screen ${ui.page.background}`}>
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header title={meta.title} subtitle={meta.subtitle} />

@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
@@ -10,14 +11,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    'bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-300 dark:disabled:bg-indigo-800',
-  secondary:
-    'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:disabled:bg-slate-900',
-  ghost:
-    'text-slate-600 hover:bg-slate-100 disabled:text-slate-400 dark:text-slate-300 dark:hover:bg-slate-800 dark:disabled:text-slate-600',
-  danger:
-    'bg-rose-600 text-white hover:bg-rose-500 disabled:bg-rose-300 dark:disabled:bg-rose-900',
+  primary: ui.button.primary,
+  secondary: ui.button.secondary,
+  ghost: ui.button.ghost,
+  danger: ui.button.danger,
 }
 
 export function Button({
@@ -30,11 +27,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed',
-        variantClasses[variant],
-        className,
-      )}
+      className={cn(ui.button.base, variantClasses[variant], className)}
       disabled={disabled || loading}
       {...props}
     >

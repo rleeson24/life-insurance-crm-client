@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 interface SpinnerProps {
   className?: string
@@ -8,12 +9,8 @@ interface SpinnerProps {
 
 export function Spinner({ className, label = 'Loading' }: SpinnerProps) {
   return (
-    <div
-      className={cn('flex items-center justify-center gap-2 py-8 text-slate-500 dark:text-slate-400', className)}
-      role="status"
-      aria-live="polite"
-    >
-      <Loader2 className="h-5 w-5 animate-spin text-indigo-600 dark:text-indigo-400" />
+    <div className={cn(ui.feedback.spinner, className)} role="status" aria-live="polite">
+      <Loader2 className={ui.feedback.spinnerIcon} />
       <span className="text-sm">{label}</span>
     </div>
   )

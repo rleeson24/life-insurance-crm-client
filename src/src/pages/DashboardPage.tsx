@@ -9,6 +9,7 @@ import { Skeleton, SkeletonRows } from '@/components/ui/Skeleton'
 import { Badge } from '@/components/ui/Badge'
 import { formatClientName, formatDateTime } from '@/lib/format'
 import { queryKeys } from '@/lib/queryKeys'
+import { ui } from '@/lib/uiClasses'
 
 export function DashboardPage() {
   const activeClientsQuery = useQuery({
@@ -27,21 +28,21 @@ export function DashboardPage() {
         <Card className="overflow-hidden">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Active clients</p>
+              <p className={`text-sm font-medium ${ui.text.muted}`}>Active clients</p>
               {activeClientsQuery.isLoading ? (
                 <Skeleton className="mt-3 h-10 w-24" />
               ) : activeClientsQuery.isError ? (
                 <p className="mt-3 text-3xl font-semibold text-slate-400">—</p>
               ) : (
-                <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+                <p className={`mt-3 ${ui.text.stat}`}>
                   {activeClientsQuery.data?.totalCount ?? 0}
                 </p>
               )}
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              <p className={`mt-2 ${ui.text.mutedSm}`}>
                 Clients currently marked active
               </p>
             </div>
-            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+            <div className={ui.surface.iconAccent}>
               <Users className="h-5 w-5" />
             </div>
           </div>
@@ -65,7 +66,7 @@ export function DashboardPage() {
             description="You're caught up. New follow-ups will appear here."
           />
         ) : (
-          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+          <ul className={ui.divide.default}>
             {followUpsQuery.data?.map((followUp) => (
               <li
                 key={followUp.clientInteractionId}
@@ -75,7 +76,7 @@ export function DashboardPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       to={`/clients/${followUp.clientId}`}
-                      className="font-medium text-slate-900 hover:text-indigo-600 dark:text-slate-100 dark:hover:text-indigo-400"
+                      className={ui.link.item}
                     >
                       {formatClientName(
                         followUp.clientFirstName,
@@ -84,7 +85,7 @@ export function DashboardPage() {
                     </Link>
                     <Badge variant="warning">Follow-up</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  <p className={`mt-1 text-sm ${ui.text.secondary}`}>
                     {followUp.summary || 'No summary provided'}
                   </p>
                   <p className="mt-1 text-xs text-slate-400">
@@ -93,7 +94,7 @@ export function DashboardPage() {
                 </div>
                 <Link
                   to={`/clients/${followUp.clientId}`}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  className={ui.link.accentInline}
                 >
                   View client
                   <ArrowRight className="h-4 w-4" />

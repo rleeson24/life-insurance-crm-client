@@ -1,4 +1,5 @@
 import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 interface SkeletonProps {
   className?: string
@@ -6,10 +7,7 @@ interface SkeletonProps {
 
 export function Skeleton({ className }: SkeletonProps) {
   return (
-    <div
-      className={cn('animate-pulse rounded-md bg-slate-200/80 dark:bg-slate-700/80', className)}
-      aria-hidden="true"
-    />
+    <div className={cn(ui.feedback.skeleton, className)} aria-hidden="true" />
   )
 }
 

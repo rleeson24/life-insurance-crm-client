@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 interface CardProps {
   children: ReactNode
@@ -17,20 +18,15 @@ export function Card({
   action,
 }: CardProps) {
   return (
-    <section
-      className={cn(
-        'rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900',
-        className,
-      )}
-    >
+    <section className={cn(ui.surface.card, className)}>
       {title || description || action ? (
-        <header className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+        <header className={ui.surface.cardHeader}>
           <div>
             {title ? (
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+              <h2 className={ui.text.sectionTitle}>{title}</h2>
             ) : null}
             {description ? (
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+              <p className={cn('mt-1', ui.text.mutedSm)}>{description}</p>
             ) : null}
           </div>
           {action}

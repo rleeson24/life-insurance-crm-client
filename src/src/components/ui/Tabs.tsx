@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/format'
+import { ui } from '@/lib/uiClasses'
 
 interface TabsProps {
   tabs: Array<{ id: string; label: string }>
@@ -11,11 +12,7 @@ interface TabsProps {
 export function Tabs({ tabs, activeTab, onChange, children }: TabsProps) {
   return (
     <div>
-      <div
-        className="flex gap-1 border-b border-slate-200 dark:border-slate-800"
-        role="tablist"
-        aria-label="Client profile sections"
-      >
+      <div className={ui.tabs.bar} role="tablist" aria-label="Client profile sections">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab
 
@@ -26,10 +23,8 @@ export function Tabs({ tabs, activeTab, onChange, children }: TabsProps) {
               role="tab"
               aria-selected={isActive}
               className={cn(
-                'border-b-2 px-4 py-3 text-sm font-medium transition-colors',
-                isActive
-                  ? 'border-indigo-600 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200',
+                ui.tabs.tab,
+                isActive ? ui.tabs.active : ui.tabs.inactive,
               )}
               onClick={() => onChange(tab.id)}
             >
