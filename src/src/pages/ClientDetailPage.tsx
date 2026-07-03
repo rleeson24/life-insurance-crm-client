@@ -26,10 +26,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+      <dt className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
         {label}
       </dt>
-      <dd className="mt-1 text-sm text-slate-900">{value || '—'}</dd>
+      <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">{value || '—'}</dd>
     </div>
   )
 }
@@ -51,7 +51,7 @@ export function ClientDetailPage() {
     <div className="space-y-6">
       <Link
         to="/clients"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to clients
@@ -76,7 +76,7 @@ export function ClientDetailPage() {
           action={
             <Link
               to="/clients"
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
             >
               Return to clients
             </Link>
@@ -85,7 +85,7 @@ export function ClientDetailPage() {
       ) : (
         <Card>
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
               {formatClientName(
                 client.firstName,
                 client.lastName,
@@ -136,18 +136,18 @@ export function ClientDetailPage() {
                   description="Client interactions will appear here once logged."
                 />
               ) : (
-                <ul className="divide-y divide-slate-100">
+                <ul className="divide-y divide-slate-100 dark:divide-slate-800">
                   {detail.interactions.map((interaction) => (
                     <li key={interaction.clientInteractionId} className="py-4 first:pt-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">
+                        <p className="font-medium text-slate-900 dark:text-slate-100">
                           {interaction.summary || 'Interaction'}
                         </p>
                         {interaction.requiresFollowUp ? (
                           <Badge variant="warning">Follow-up</Badge>
                         ) : null}
                       </div>
-                      <p className="mt-1 text-sm text-slate-600">
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         {interaction.notes || 'No notes recorded'}
                       </p>
                       <p className="mt-2 text-xs text-slate-400">
@@ -162,26 +162,26 @@ export function ClientDetailPage() {
             {activeTab === 'coverage' ? (
               <div className="space-y-6">
                 <section>
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Medicare enrollments
                   </h3>
                   {detail.medicareEnrollments.length === 0 ? (
-                    <p className="mt-2 text-sm text-slate-500">
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                       No Medicare enrollments recorded.
                     </p>
                   ) : (
-                    <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-100">
+                    <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
                       {detail.medicareEnrollments.map((enrollment) => (
                         <li key={enrollment.medicareEnrollmentId} className="px-4 py-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-medium text-slate-900">
+                            <p className="font-medium text-slate-900 dark:text-slate-100">
                               {enrollment.planName || 'Medicare plan'}
                             </p>
                             {enrollment.isActivePlan ? (
                               <Badge variant="success">Active</Badge>
                             ) : null}
                           </div>
-                          <p className="mt-1 text-sm text-slate-600">
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                             Start {formatDate(enrollment.coverageStartDate)}
                           </p>
                         </li>
@@ -191,29 +191,29 @@ export function ClientDetailPage() {
                 </section>
 
                 <section>
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Supplemental coverage
                   </h3>
                   {detail.supplementalEnrollments.length === 0 ? (
-                    <p className="mt-2 text-sm text-slate-500">
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                       No supplemental coverage recorded.
                     </p>
                   ) : (
-                    <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-100">
+                    <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
                       {detail.supplementalEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.supplementalEnrollmentId}
                           className="px-4 py-3"
                         >
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-medium text-slate-900">
+                            <p className="font-medium text-slate-900 dark:text-slate-100">
                               {enrollment.planOrCarrierName || 'Supplemental plan'}
                             </p>
                             {enrollment.isActiveCoverage ? (
                               <Badge variant="success">Active</Badge>
                             ) : null}
                           </div>
-                          <p className="mt-1 text-sm text-slate-600">
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                             Start {formatDate(enrollment.coverageStartDate)}
                           </p>
                         </li>

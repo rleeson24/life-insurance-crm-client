@@ -27,21 +27,21 @@ export function DashboardPage() {
         <Card className="overflow-hidden">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Active clients</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Active clients</p>
               {activeClientsQuery.isLoading ? (
                 <Skeleton className="mt-3 h-10 w-24" />
               ) : activeClientsQuery.isError ? (
                 <p className="mt-3 text-3xl font-semibold text-slate-400">—</p>
               ) : (
-                <p className="mt-3 text-3xl font-semibold text-slate-900">
+                <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                   {activeClientsQuery.data?.totalCount ?? 0}
                 </p>
               )}
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 Clients currently marked active
               </p>
             </div>
-            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
               <Users className="h-5 w-5" />
             </div>
           </div>
@@ -65,7 +65,7 @@ export function DashboardPage() {
             description="You're caught up. New follow-ups will appear here."
           />
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {followUpsQuery.data?.map((followUp) => (
               <li
                 key={followUp.clientInteractionId}
@@ -75,7 +75,7 @@ export function DashboardPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       to={`/clients/${followUp.clientId}`}
-                      className="font-medium text-slate-900 hover:text-indigo-600"
+                      className="font-medium text-slate-900 hover:text-indigo-600 dark:text-slate-100 dark:hover:text-indigo-400"
                     >
                       {formatClientName(
                         followUp.clientFirstName,
@@ -84,7 +84,7 @@ export function DashboardPage() {
                     </Link>
                     <Badge variant="warning">Follow-up</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                     {followUp.summary || 'No summary provided'}
                   </p>
                   <p className="mt-1 text-xs text-slate-400">
@@ -93,7 +93,7 @@ export function DashboardPage() {
                 </div>
                 <Link
                   to={`/clients/${followUp.clientId}`}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   View client
                   <ArrowRight className="h-4 w-4" />
