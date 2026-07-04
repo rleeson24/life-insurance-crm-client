@@ -19,6 +19,13 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
 }
 
 function getPageMeta(pathname: string) {
+  if (pathname.endsWith('/edit') && pathname.startsWith('/clients/')) {
+    return {
+      title: 'Edit Client',
+      subtitle: 'Update client details or remove the record',
+    }
+  }
+
   if (pathname.startsWith('/clients/') && pathname !== '/clients/new') {
     return {
       title: 'Client Profile',

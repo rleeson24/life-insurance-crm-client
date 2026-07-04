@@ -130,6 +130,44 @@ export interface CreateClientModel {
   notes?: string | null
 }
 
+export interface UpdateClientModel extends CreateClientModel {
+  clientId: string
+}
+
+export interface CreateMedicareEnrollmentModel {
+  recordedAt: string
+  isActivePlan: boolean
+  planName?: string | null
+  prescriptionDrugPlan?: string | null
+  coverageStartDate?: string | null
+  isNewEnrollment: boolean
+  healthReimbursementArrangement?: string | null
+  enrollmentPlatform?: string | null
+  enrollmentLocation?: string | null
+  notes?: string | null
+}
+
+export interface UpdateMedicareEnrollmentModel extends CreateMedicareEnrollmentModel {}
+
+export interface CreateSupplementalEnrollmentModel {
+  recordedAt: string
+  planOrCarrierName?: string | null
+  coverageStartDate?: string | null
+  isActiveCoverage: boolean
+  notes?: string | null
+}
+
+export interface UpdateSupplementalEnrollmentModel extends CreateSupplementalEnrollmentModel {}
+
+export interface CreateClientInteractionModel {
+  contactedAt: string
+  summary?: string | null
+  notes?: string | null
+  requiresFollowUp: boolean
+}
+
+export interface UpdateClientInteractionModel extends CreateClientInteractionModel {}
+
 export interface ListClientsParams {
   search?: string
   page?: number

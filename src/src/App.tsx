@@ -3,6 +3,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { ClientDetailPage } from '@/pages/ClientDetailPage'
 import { ClientsPage } from '@/pages/ClientsPage'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { EditClientPage } from '@/pages/EditClientPage'
 import { NewClientPage } from '@/pages/NewClientPage'
 
 export function App() {
@@ -12,6 +13,7 @@ export function App() {
         <Route index element={<DashboardPage />} />
         <Route path="clients" element={<ClientsPage />} />
         <Route path="clients/new" element={<NewClientPage />} />
+        <Route path="clients/:id/edit" element={<EditClientPage />} />
         <Route path="clients/:id" element={<ClientDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

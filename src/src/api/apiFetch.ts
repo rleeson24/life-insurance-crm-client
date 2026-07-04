@@ -32,7 +32,9 @@ async function parseError(response: Response): Promise<ApiError> {
   return new ApiError(message, response.status, details)
 }
 
-export async function apiFetch<T>(
+export type ApiRequestOptions = Omit<RequestInit, 'method' | 'body'>
+
+async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
@@ -64,6 +66,53 @@ export async function apiFetch<T>(
   }
 
   return (await response.json()) as T
+}
+
+export function apiGet<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  return request<T>(path, { ...options, method: 'GET' })
+}
+
+export function apiPost<T>(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  return request<T>(path, {
+    ...options,
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function apiPut<T>(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  return request<T>(path, {
+    ...options,
+    method: 'PUT',
+    body: JSON.stringify(body),
+  })
+}
+
+export function apiPatch<T>(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  return request<T>(path, {
+    ...options,
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export function apiDelete<T = void>(
+  path: string,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  return request<T>(path, { ...options, method: 'DELETE' })
 }
 
 export function buildQueryString(
