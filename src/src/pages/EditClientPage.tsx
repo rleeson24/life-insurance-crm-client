@@ -29,7 +29,7 @@ export function EditClientPage() {
 
   const detailQuery = useQuery({
     queryKey: queryKeys.clientDetail(id),
-    queryFn: () => getClientDetail(id),
+    queryFn: ({ signal }) => getClientDetail(id, { signal }),
     enabled: Boolean(id),
   })
 

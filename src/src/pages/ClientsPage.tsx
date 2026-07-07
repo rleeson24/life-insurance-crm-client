@@ -25,7 +25,7 @@ export function ClientsPage() {
 
   const clientsQuery = useQuery({
     queryKey: queryKeys.clients(queryParams),
-    queryFn: () => listClients(queryParams),
+    queryFn: ({ signal }) => listClients(queryParams, { signal }),
     placeholderData: (previousData) => previousData,
   })
 

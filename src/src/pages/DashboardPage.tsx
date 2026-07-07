@@ -14,12 +14,13 @@ import { ui } from '@/lib/uiClasses'
 export function DashboardPage() {
   const activeClientsQuery = useQuery({
     queryKey: queryKeys.activeClientCount,
-    queryFn: () => listClients({ isActive: true, page: 1, pageSize: 1 }),
+    queryFn: ({ signal }) =>
+      listClients({ isActive: true, page: 1, pageSize: 1 }, { signal }),
   })
 
   const followUpsQuery = useQuery({
     queryKey: queryKeys.followUps,
-    queryFn: listFollowUps,
+    queryFn: ({ signal }) => listFollowUps({ signal }),
   })
 
   return (

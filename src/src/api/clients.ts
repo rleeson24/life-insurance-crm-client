@@ -4,6 +4,7 @@ import {
   apiPost,
   apiPut,
   buildQueryString,
+  type ApiRequestOptions,
 } from '@/api/apiFetch'
 import type {
   ClientDetailDto,
@@ -14,7 +15,10 @@ import type {
   UpdateClientModel,
 } from '@/types/apiModels'
 
-export function listClients(params: ListClientsParams = {}) {
+export function listClients(
+  params: ListClientsParams = {},
+  options: ApiRequestOptions = {},
+) {
   return apiGet<ListClientsResult>(
     `/api/clients${buildQueryString({
       search: params.search,
@@ -23,11 +27,15 @@ export function listClients(params: ListClientsParams = {}) {
       isActive: params.isActive,
       isAcaClient: params.isAcaClient,
     })}`,
+    options,
   )
 }
 
-export function getClientDetail(clientId: string) {
-  return apiGet<ClientDetailDto>(`/api/clients/${clientId}/detail`)
+export function getClientDetail(
+  clientId: string,
+  options: ApiRequestOptions = {},
+) {
+  return apiGet<ClientDetailDto>(`/api/clients/${clientId}/detail`, options)
 }
 
 export function createClient(model: CreateClientModel) {

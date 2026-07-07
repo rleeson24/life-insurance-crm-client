@@ -1,6 +1,6 @@
-import { apiGet } from '@/api/apiFetch'
+import { apiGet, type ApiRequestOptions } from '@/api/apiFetch'
 import type { FollowUpInteractionDto } from '@/types/apiModels'
 
-export function listFollowUps() {
-  return apiGet<FollowUpInteractionDto[]>('/api/follow-ups')
+export function listFollowUps(options: ApiRequestOptions = {}) {
+  return apiGet<FollowUpInteractionDto[]>('/api/follow-ups', options)
 }
