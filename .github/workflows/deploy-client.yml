@@ -1,0 +1,90 @@
+name: Deploy client
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+      resourceGroup:
+        description: Azure resource group name
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve Azure resources
+        id: azure
+        working-directory: .
+        run: |
+          set -euo pipefail
+          RG="${{ inputs.resourceGroup }}"
+          SWA_NAME="$(az staticwebapp list --resource-group "$RG" --query "[0].name" -o tsv)"
+          API_NAME="$(az containerapp list --resource-group "$RG" --query "[?contains(name, '-api')].name | [0]" -o tsv)"
+          if [ -z "$SWA_NAME" ] || [ -z "$API_NAME" ]; then
+            echo "Could not find Static Web App or Container App in $RG. Deploy infrastructure from the API repo first."
+            exit 1
+          fi
+          API_FQDN="$(az containerapp show --name "$API_NAME" --resource-group "$RG" --query properties.configuration.ingress.fqdn -o tsv)"
+          echo "swa_name=$SWA_NAME" >> "$GITHUB_OUTPUT"
+          echo "api_origin=https://${API_FQDN}" >> "$GITHUB_OUTPUT"
+          echo "Resolved SWA=$SWA_NAME API=https://${API_FQDN}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: ${{ steps.azure.outputs.api_origin }}
+        run: npm run build
+
+      - name: Get Static Web Apps deploy token
+        id: swa
+        working-directory: .
+        run: |
+          set -euo pipefail
+          TOKEN="$(az staticwebapp secrets list \
+            --name "${{ steps.azure.outputs.swa_name }}" \
+            --resource-group "${{ inputs.resourceGroup }}" \
+            --query properties.apiKey -o tsv)"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ steps.swa.outputs.token }}
+          action: upload
+          app_location: src/dist
+          skip_app_build: true
+          skip_api_build: true
