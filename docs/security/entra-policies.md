@@ -4,7 +4,7 @@ Canonical runbook (Conditional Access, both app registrations, Key Vault mapping
 
 [life-insurance-crm-api `docs/security/entra-policies.md`](https://github.com/rleeson24/life-insurance-crm-api/blob/main/docs/security/entra-policies.md)
 
-This repository is the **SPA**. MFA is enforced in Entra, not in React. `src/src/auth/auth.ts` stays a development placeholder until MSAL is implemented (phase 3.3).
+This repository is the **SPA**. MFA is enforced in Entra. The React app uses MSAL (`@azure/msal-browser` + `@azure/msal-react`) in local, Azure dev, and prod.
 
 ## SPA registration (this repo)
 
@@ -20,6 +20,20 @@ Create **`LifeInsuranceCRM-SPA`** as a **separate** Entra app from `LifeInsuranc
 | Admin consent | Required |
 
 MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://life-insurance-crm/access_as_user`.
+
+### Local
+
+1. Copy [`src/.env.example`](../../src/.env.example) to `src/.env.local` (gitignored) and set `VITE_AZURE_AD_CLIENT_ID`, `VITE_AZURE_AD_TENANT_ID`, and `VITE_AZURE_AD_API_SCOPE`.
+2. On the API, put the **API** registration in user secrets so local JWT validation is on:
+
+```powershell
+cd life-insurance-crm-api/src/main
+dotnet user-secrets set "AzureAd:TenantId" "<tenant-id>"
+dotnet user-secrets set "AzureAd:ClientId" "<api-client-id>"
+dotnet user-secrets set "AzureAd:Audience" "api://life-insurance-crm"
+```
+
+3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` (JWT `oid` must match). Do not use `NameIdentifier` / `sub` — on personal Microsoft accounts that value is not a GUID.
 
 How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
 

@@ -1,16 +1,61 @@
-/**
- * Development: the API uses DevelopmentAuthenticationHandler and does not require
- * a client token for local requests.
- *
- * Production: integrate MSAL / Entra ID here and attach bearer tokens in api/apiFetch.ts.
- */
-export const isDevelopmentAuth = import.meta.env.DEV
+import {
+  InteractionRequiredAuthError,
+  PublicClientApplication,
+  type AccountInfo,
+} from '@azure/msal-browser'
+import { apiScopes, loginRequest, msalConfig } from '@/auth/msalConfig'
+
+export const msalInstance = new PublicClientApplication(msalConfig)
+
+function firstAccount(): AccountInfo | null {
+  return msalInstance.getActiveAccount() ?? msalInstance.getAllAccounts()[0] ?? null
+}
+
+export async function initializeMsal(): Promise<void> {
+  await msalInstance.initialize()
+  const redirectResult = await msalInstance.handleRedirectPromise()
+  const account = redirectResult?.account ?? firstAccount()
+  if (account) {
+    msalInstance.setActiveAccount(account)
+  }
+}
 
 export async function getAccessToken(): Promise<string | null> {
-  // MSAL placeholder — return an access token when Azure AD auth is enabled.
-  return null
+  const account = firstAccount()
+  if (!account) {
+    return null
+  }
+
+  try {
+    const result = await msalInstance.acquireTokenSilent({
+      account,
+      scopes: apiScopes,
+    })
+    return result.accessToken
+  } catch (error) {
+    if (error instanceof InteractionRequiredAuthError) {
+      await msalInstance.acquireTokenRedirect({
+        ...loginRequest,
+        account,
+      })
+      return null
+    }
+    throw error
+  }
+}
+
+export function login(): Promise<void> {
+  return msalInstance.loginRedirect(loginRequest)
+}
+
+export function logout(): Promise<void> {
+  const account = firstAccount()
+  return msalInstance.logoutRedirect({
+    account: account ?? undefined,
+  })
 }
 
 export function getAuthDisplayName(): string {
-  return isDevelopmentAuth ? 'Development User' : 'Signed in'
+  const account = firstAccount()
+  return account?.name || account?.username || 'Signed in'
 }

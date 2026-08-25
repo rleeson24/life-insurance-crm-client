@@ -26,6 +26,13 @@ Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity is Con
 
 3. Create GitHub Environments `dev` and `prod` in this repository (names must match the Bicep `environment` parameter).
 4. After the first infra deploy, add the Bicep output `clientRedirectUri` (for example `https://<hostname>.azurestaticapps.net/`) as an Entra **SPA** redirect URI on `LifeInsuranceCRM-SPA`. See [entra-policies.md](entra-policies.md).
+5. Set GitHub **environment variables** (not secrets — these are public in the SPA bundle) on `dev` and `prod`:
+
+| Variable | Value |
+|----------|--------|
+| `VITE_AZURE_AD_CLIENT_ID` | SPA application (client) ID |
+| `VITE_AZURE_AD_TENANT_ID` | Directory (tenant) ID |
+| `VITE_AZURE_AD_API_SCOPE` | `api://life-insurance-crm/access_as_user` |
 
 ## Deploy
 
@@ -38,7 +45,7 @@ The workflow:
 
 1. Signs in with OIDC (no long-lived Azure secret).
 2. Resolves the Static Web App and API Container App in that resource group.
-3. Builds with `VITE_API_BASE_URL` set to `https://<api-fqdn>`.
+3. Builds with `VITE_API_BASE_URL` set to `https://<api-fqdn>` and the Entra SPA variables above.
 4. Fetches a short-lived SWA deployment token from Azure and uploads `src/dist`.
 
-The SPA origin is already in API `Cors:AllowedOrigins` from Bicep. After Entra redirect URIs are updated, MSAL (phase 3.3) can use that origin.
+The SPA origin is already in API `Cors:AllowedOrigins` from Bicep. MSAL uses that origin as the redirect URI.
