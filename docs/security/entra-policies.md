@@ -15,11 +15,13 @@ Create **`LifeInsuranceCRM-SPA`** as a **separate** Entra app from `LifeInsuranc
 | Account type | Single tenant |
 | Platform | Single-page application |
 | Redirect URI (local) | `http://localhost:5387/` |
-| Redirect URI (prod) | Production SPA origin (exact match) |
+| Redirect URI (Azure) | Bicep output `clientRedirectUri` from the API infra deploy (exact match, trailing slash) |
 | API permission | Delegated `api://life-insurance-crm/access_as_user` |
 | Admin consent | Required |
 
 MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://life-insurance-crm/access_as_user`.
+
+How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
 
 ## GitHub (this repository)
 
