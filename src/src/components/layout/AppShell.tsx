@@ -16,6 +16,14 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     title: 'New Client',
     subtitle: 'Add a new client record',
   },
+  '/admin/users': {
+    title: 'Users',
+    subtitle: 'Map Entra users to CRM organizations',
+  },
+  '/admin/tenants': {
+    title: 'Organizations',
+    subtitle: 'Create CRM tenants and mark them inactive when they leave',
+  },
 }
 
 function getPageMeta(pathname: string) {
