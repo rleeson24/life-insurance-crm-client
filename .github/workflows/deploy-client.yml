@@ -60,12 +60,18 @@ jobs:
           cache: npm
           cache-dependency-path: src/package-lock.json
 
+      - name: Use npm from packageManager
+        run: npm install -g npm@11.19.0
+
       - name: Install
         run: npm ci
 
       - name: Build
         env:
           VITE_API_BASE_URL: ${{ steps.azure.outputs.api_origin }}
+          VITE_AZURE_AD_CLIENT_ID: ${{ vars.VITE_AZURE_AD_CLIENT_ID }}
+          VITE_AZURE_AD_TENANT_ID: ${{ vars.VITE_AZURE_AD_TENANT_ID }}
+          VITE_AZURE_AD_API_SCOPE: ${{ vars.VITE_AZURE_AD_API_SCOPE }}
         run: npm run build
 
       - name: Get Static Web Apps deploy token

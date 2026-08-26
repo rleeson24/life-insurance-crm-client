@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, Shield } from 'lucide-react'
+import { LayoutDashboard, LogOut, Users, Shield } from 'lucide-react'
+import { useMsal } from '@azure/msal-react'
+import { getAuthDisplayName, logout } from '@/auth/auth'
 import { cn } from '@/lib/format'
-import { getAuthDisplayName, isDevelopmentAuth } from '@/auth/auth'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -9,6 +10,9 @@ const navItems = [
 ]
 
 export function Sidebar() {
+  const { accounts } = useMsal()
+  const displayName = accounts[0]?.name || accounts[0]?.username || getAuthDisplayName()
+
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-950 text-slate-100">
       <div className="flex items-center gap-3 border-b border-slate-800 px-5 py-5">
@@ -43,10 +47,15 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-slate-800 p-4">
-        <p className="text-xs font-medium text-slate-300">{getAuthDisplayName()}</p>
-        {isDevelopmentAuth ? (
-          <p className="mt-1 text-xs text-slate-500">Dev auth enabled</p>
-        ) : null}
+        <p className="truncate text-xs font-medium text-slate-300">{displayName}</p>
+        <button
+          type="button"
+          className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-slate-400 transition-colors hover:text-white"
+          onClick={() => void logout()}
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sign out
+        </button>
       </div>
     </aside>
   )
