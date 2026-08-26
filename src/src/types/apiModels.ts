@@ -175,3 +175,40 @@ export interface ListClientsParams {
   isActive?: boolean
   isAcaClient?: boolean
 }
+
+export interface CurrentUserDto {
+  userId: string
+  email?: string | null
+  tenantId: string
+  role: string
+}
+
+export interface OrganizationUserDto {
+  organizationUserId: string
+  tenantId: string
+  tenantName?: string | null
+  userId: string
+  emailAddress?: string | null
+  displayName?: string | null
+  role: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateOrganizationUserModel {
+  userId: string
+  emailAddress?: string | null
+  displayName: string
+  role: string
+  createNewTenant: boolean
+  newTenantName?: string | null
+}
+
+export interface UpdateOrganizationUserModel {
+  emailAddress?: string | null
+  displayName: string
+  role: string
+  isActive: boolean
+}
+

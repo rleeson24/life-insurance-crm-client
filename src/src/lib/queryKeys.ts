@@ -3,4 +3,6 @@ export const queryKeys = {
   clients: (params: Record<string, unknown>) => ['clients', params] as const,
   clientDetail: (clientId: string) => ['client-detail', clientId] as const,
   activeClientCount: ['active-client-count'] as const,
+  me: ['me'] as const,
+  organizationUsers: ['organization-users'] as const,
 }

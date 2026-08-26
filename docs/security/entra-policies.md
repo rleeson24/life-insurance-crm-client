@@ -33,7 +33,7 @@ dotnet user-secrets set "AzureAd:ClientId" "<api-client-id>"
 dotnet user-secrets set "AzureAd:Audience" "api://life-insurance-crm"
 ```
 
-3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` (JWT `oid` must match). Do not use `NameIdentifier` / `sub` — on personal Microsoft accounts that value is not a GUID.
+3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` using `life-insurance-crm-api/scripts/provision-organization-user.ps1` (JWT `oid` must match). Do not use `NameIdentifier` / `sub`. After that, Admins add further users from **Users** in the app.
 
 How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
 

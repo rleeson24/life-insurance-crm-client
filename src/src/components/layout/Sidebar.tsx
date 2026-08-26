@@ -1,8 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, LogOut, Users, Shield } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { LayoutDashboard, LogOut, Users, Shield, UserCog } from 'lucide-react'
 import { useMsal } from '@azure/msal-react'
+import { getCurrentUser } from '@/api/me'
 import { getAuthDisplayName, logout } from '@/auth/auth'
 import { cn } from '@/lib/format'
+import { queryKeys } from '@/lib/queryKeys'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -12,6 +15,11 @@ const navItems = [
 export function Sidebar() {
   const { accounts } = useMsal()
   const displayName = accounts[0]?.name || accounts[0]?.username || getAuthDisplayName()
+  const meQuery = useQuery({
+    queryKey: queryKeys.me,
+    queryFn: ({ signal }) => getCurrentUser({ signal }),
+  })
+  const isAdmin = meQuery.data?.role === 'Admin'
 
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-950 text-slate-100">
@@ -44,6 +52,22 @@ export function Sidebar() {
             {label}
           </NavLink>
         ))}
+        {isAdmin ? (
+          <NavLink
+            to="/admin/users"
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-indigo-500/15 text-indigo-200'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white',
+              )
+            }
+          >
+            <UserCog className="h-4 w-4" />
+            Users
+          </NavLink>
+        ) : null}
       </nav>
 
       <div className="border-t border-slate-800 p-4">
