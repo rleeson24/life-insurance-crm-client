@@ -8,6 +8,7 @@ import {
   listOrganizationUsers,
   updateOrganizationUser,
 } from '@/api/organizationUsers'
+import { listTenants } from '@/api/tenants'
 import { ApiError } from '@/api/apiFetch'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -17,10 +18,19 @@ import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { SkeletonRows } from '@/components/ui/Skeleton'
 import { queryKeys } from '@/lib/queryKeys'
+import {
+  canManageOrganizationUsers,
+  isSuperAdmin,
+  organizationRoles,
+} from '@/lib/roles'
 import { ui } from '@/lib/uiClasses'
 import type { OrganizationUserDto } from '@/types/apiModels'
 
-const roles = ['Admin', 'Agent', 'ReadOnly'] as const
+const roles = [
+  organizationRoles.admin,
+  organizationRoles.agent,
+  organizationRoles.readOnly,
+] as const
 
 const guidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -30,23 +40,22 @@ interface CreateForm {
   displayName: string
   emailAddress: string
   role: string
-  createNewTenant: boolean
-  newTenantName: string
+  tenantId: string
 }
 
 const emptyForm: CreateForm = {
   userId: '',
   displayName: '',
   emailAddress: '',
-  role: 'Agent',
-  createNewTenant: false,
-  newTenantName: '',
+  role: organizationRoles.agent,
+  tenantId: '',
 }
 
 export function AdminUsersPage() {
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [form, setForm] = useState<CreateForm>(emptyForm)
+  const [tenantFilter, setTenantFilter] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
@@ -54,25 +63,33 @@ export function AdminUsersPage() {
     queryKey: queryKeys.me,
     queryFn: ({ signal }) => getCurrentUser({ signal }),
   })
+  const platformOperator = isSuperAdmin(meQuery.data?.role)
+  const canManageUsers = canManageOrganizationUsers(meQuery.data?.role)
+
+  const tenantsQuery = useQuery({
+    queryKey: queryKeys.tenants,
+    queryFn: ({ signal }) => listTenants({ signal }),
+    enabled: platformOperator,
+  })
 
   const usersQuery = useQuery({
-    queryKey: queryKeys.organizationUsers,
-    queryFn: ({ signal }) => listOrganizationUsers({ signal }),
-    enabled: meQuery.data?.role === 'Admin',
+    queryKey: queryKeys.organizationUsers(tenantFilter || undefined),
+    queryFn: ({ signal }) =>
+      listOrganizationUsers(
+        { tenantId: tenantFilter || undefined },
+        { signal },
+      ),
+    enabled: canManageUsers,
   })
 
   const createMutation = useMutation({
     mutationFn: createOrganizationUser,
     onSuccess: (created) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organizationUsers })
+      queryClient.invalidateQueries({ queryKey: ['organization-users'] })
       setFormOpen(false)
       setForm(emptyForm)
       setErrorMessage(null)
-      setSuccessMessage(
-        created.tenantId !== meQuery.data?.tenantId
-          ? `Added ${created.displayName} to a new organization (${created.tenantId}). They will not appear in this list.`
-          : `Added ${created.displayName}.`,
-      )
+      setSuccessMessage(`Added ${created.displayName}.`)
     },
     onError: (error) => {
       setErrorMessage(
@@ -93,7 +110,7 @@ export function AdminUsersPage() {
       isActive: boolean
     }) => updateOrganizationUser(organizationUserId, model),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.organizationUsers })
+      queryClient.invalidateQueries({ queryKey: ['organization-users'] })
       setErrorMessage(null)
     },
     onError: (error) => {
@@ -112,7 +129,7 @@ export function AdminUsersPage() {
     return <SkeletonRows rows={6} />
   }
 
-  if (meQuery.isError || meQuery.data?.role !== 'Admin') {
+  if (meQuery.isError || !canManageUsers) {
     return <Navigate to="/" replace />
   }
 
@@ -127,13 +144,17 @@ export function AdminUsersPage() {
       return
     }
 
+    if (platformOperator && !form.tenantId) {
+      setErrorMessage('Choose the organization this user belongs to.')
+      return
+    }
+
     createMutation.mutate({
       userId,
       displayName: form.displayName.trim(),
       emailAddress: form.emailAddress.trim() || null,
       role: form.role,
-      createNewTenant: form.createNewTenant,
-      newTenantName: form.createNewTenant ? form.newTenantName.trim() : null,
+      tenantId: platformOperator ? form.tenantId : null,
     })
   }
 
@@ -141,20 +162,44 @@ export function AdminUsersPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className={ui.text.mutedSm}>
-          Map people who already exist in Entra. Isolation is by CRM tenant (
-          {tenantName}), not by Entra directory ID.
+          {platformOperator
+            ? 'Map Entra users to any CRM organization. SuperAdmin is assigned with the provision script, not from this screen.'
+            : `Map people who already exist in Entra. Isolation is by CRM tenant (${tenantName}), not by Entra directory ID.`}
         </p>
-        <Button
-          type="button"
-          onClick={() => {
-            setForm(emptyForm)
-            setErrorMessage(null)
-            setFormOpen(true)
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add user
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          {platformOperator ? (
+            <label className="flex items-center gap-2 text-sm">
+              <span className={ui.text.label}>Organization</span>
+              <select
+                className={ui.field.control}
+                value={tenantFilter}
+                onChange={(event) => setTenantFilter(event.target.value)}
+              >
+                <option value="">All organizations</option>
+                {tenantsQuery.data?.map((tenant) => (
+                  <option key={tenant.tenantId} value={tenant.tenantId}>
+                    {tenant.name}
+                    {tenant.isActive ? '' : ' (inactive)'}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          <Button
+            type="button"
+            onClick={() => {
+              setForm({
+                ...emptyForm,
+                tenantId: tenantFilter,
+              })
+              setErrorMessage(null)
+              setFormOpen(true)
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add user
+          </Button>
+        </div>
       </div>
 
       {successMessage ? (
@@ -173,7 +218,7 @@ export function AdminUsersPage() {
         ) : usersQuery.isError ? (
           <EmptyState
             title="Unable to load users"
-            description="Check that the API is running and that you are an administrator."
+            description="Check that the API is running and that you can manage users."
           />
         ) : usersQuery.data?.length === 0 ? (
           <EmptyState
@@ -191,6 +236,9 @@ export function AdminUsersPage() {
               <thead className={ui.table.head}>
                 <tr>
                   <th className="px-3 py-3 font-medium">User</th>
+                  {platformOperator ? (
+                    <th className="px-3 py-3 font-medium">Organization</th>
+                  ) : null}
                   <th className="px-3 py-3 font-medium">Entra object ID</th>
                   <th className="px-3 py-3 font-medium">Role</th>
                   <th className="px-3 py-3 font-medium">Status</th>
@@ -201,6 +249,7 @@ export function AdminUsersPage() {
                   <UserRow
                     key={user.organizationUserId}
                     user={user}
+                    showTenant={platformOperator}
                     disabled={updateMutation.isPending}
                     onChange={(patch) =>
                       updateMutation.mutate({
@@ -228,6 +277,30 @@ export function AdminUsersPage() {
       >
         <form className="space-y-4" onSubmit={submitCreate}>
           {errorMessage ? <p className={ui.text.errorBanner}>{errorMessage}</p> : null}
+          {platformOperator ? (
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className={ui.text.label}>Organization</span>
+              <select
+                className={ui.field.control}
+                value={form.tenantId}
+                required
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    tenantId: event.target.value,
+                  }))
+                }
+              >
+                <option value="">Select an organization</option>
+                {tenantsQuery.data?.map((tenant) => (
+                  <option key={tenant.tenantId} value={tenant.tenantId}>
+                    {tenant.name}
+                    {tenant.isActive ? '' : ' (inactive)'}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <Input
             label="Entra object ID (oid)"
             value={form.userId}
@@ -275,33 +348,6 @@ export function AdminUsersPage() {
               ))}
             </select>
           </label>
-          <label className={ui.text.checkboxLabel}>
-            <input
-              type="checkbox"
-              className={ui.field.checkbox}
-              checked={form.createNewTenant}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  createNewTenant: event.target.checked,
-                }))
-              }
-            />
-            Create a new CRM organization (isolated data)
-          </label>
-          {form.createNewTenant ? (
-            <Input
-              label="New organization name"
-              value={form.newTenantName}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  newTenantName: event.target.value,
-                }))
-              }
-              required
-            />
-          ) : null}
           <div className="flex flex-wrap justify-end gap-3 pt-2">
             <Button
               type="button"
@@ -323,36 +369,47 @@ export function AdminUsersPage() {
 
 function UserRow({
   user,
+  showTenant,
   disabled,
   onChange,
 }: {
   user: OrganizationUserDto
+  showTenant: boolean
   disabled: boolean
   onChange: (patch: { role?: string; isActive?: boolean }) => void
 }) {
+  const platformUser = isSuperAdmin(user.role)
+
   return (
     <tr className={ui.table.row}>
       <td className="px-3 py-3">
         <div className={ui.text.itemTitle}>{user.displayName || '—'}</div>
         <div className={ui.text.mutedSm}>{user.emailAddress || '—'}</div>
       </td>
+      {showTenant ? (
+        <td className="px-3 py-3">{user.tenantName || user.tenantId}</td>
+      ) : null}
       <td className={`px-3 py-3 font-mono text-xs ${ui.text.secondary}`}>
         {user.userId}
       </td>
       <td className="px-3 py-3">
-        <select
-          className={ui.field.control}
-          value={user.role}
-          disabled={disabled}
-          aria-label={`Role for ${user.displayName ?? user.userId}`}
-          onChange={(event) => onChange({ role: event.target.value })}
-        >
-          {roles.map((role) => (
-            <option key={role} value={role}>
-              {role}
-            </option>
-          ))}
-        </select>
+        {platformUser ? (
+          <span className={ui.text.itemTitle}>{user.role}</span>
+        ) : (
+          <select
+            className={ui.field.control}
+            value={user.role}
+            disabled={disabled}
+            aria-label={`Role for ${user.displayName ?? user.userId}`}
+            onChange={(event) => onChange({ role: event.target.value })}
+          >
+            {roles.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+        )}
       </td>
       <td className="px-3 py-3">
         <button

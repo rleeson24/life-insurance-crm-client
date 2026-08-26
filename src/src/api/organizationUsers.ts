@@ -1,12 +1,24 @@
-import { apiGet, apiPatch, apiPost, type ApiRequestOptions } from '@/api/apiFetch'
+import {
+  apiGet,
+  apiPatch,
+  apiPost,
+  buildQueryString,
+  type ApiRequestOptions,
+} from '@/api/apiFetch'
 import type {
   CreateOrganizationUserModel,
   OrganizationUserDto,
   UpdateOrganizationUserModel,
 } from '@/types/apiModels'
 
-export function listOrganizationUsers(options: ApiRequestOptions = {}) {
-  return apiGet<OrganizationUserDto[]>('/api/organization-users', options)
+export function listOrganizationUsers(
+  params: { tenantId?: string } = {},
+  options: ApiRequestOptions = {},
+) {
+  return apiGet<OrganizationUserDto[]>(
+    `/api/organization-users${buildQueryString({ tenantId: params.tenantId })}`,
+    options,
+  )
 }
 
 export function createOrganizationUser(model: CreateOrganizationUserModel) {

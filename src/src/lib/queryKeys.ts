@@ -4,5 +4,7 @@ export const queryKeys = {
   clientDetail: (clientId: string) => ['client-detail', clientId] as const,
   activeClientCount: ['active-client-count'] as const,
   me: ['me'] as const,
-  organizationUsers: ['organization-users'] as const,
+  tenants: ['tenants'] as const,
+  organizationUsers: (tenantId?: string) =>
+    ['organization-users', tenantId ?? 'all'] as const,
 }

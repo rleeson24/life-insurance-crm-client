@@ -18,7 +18,11 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   },
   '/admin/users': {
     title: 'Users',
-    subtitle: 'Map Entra users to this CRM organization',
+    subtitle: 'Map Entra users to CRM organizations',
+  },
+  '/admin/tenants': {
+    title: 'Organizations',
+    subtitle: 'Create CRM tenants and mark them inactive when they leave',
   },
 }
 

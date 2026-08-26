@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { LayoutDashboard, LogOut, Users, Shield, UserCog } from 'lucide-react'
+import { LayoutDashboard, LogOut, Users, Shield, UserCog, Building2 } from 'lucide-react'
 import { useMsal } from '@azure/msal-react'
 import { getCurrentUser } from '@/api/me'
 import { getAuthDisplayName, logout } from '@/auth/auth'
 import { cn } from '@/lib/format'
 import { queryKeys } from '@/lib/queryKeys'
+import { canManageOrganizationUsers, isSuperAdmin } from '@/lib/roles'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -19,7 +20,8 @@ export function Sidebar() {
     queryKey: queryKeys.me,
     queryFn: ({ signal }) => getCurrentUser({ signal }),
   })
-  const isAdmin = meQuery.data?.role === 'Admin'
+  const canManageUsers = canManageOrganizationUsers(meQuery.data?.role)
+  const platformOperator = isSuperAdmin(meQuery.data?.role)
 
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-950 text-slate-100">
@@ -52,7 +54,7 @@ export function Sidebar() {
             {label}
           </NavLink>
         ))}
-        {isAdmin ? (
+        {canManageUsers ? (
           <NavLink
             to="/admin/users"
             className={({ isActive }) =>
@@ -66,6 +68,22 @@ export function Sidebar() {
           >
             <UserCog className="h-4 w-4" />
             Users
+          </NavLink>
+        ) : null}
+        {platformOperator ? (
+          <NavLink
+            to="/admin/tenants"
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-indigo-500/15 text-indigo-200'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white',
+              )
+            }
+          >
+            <Building2 className="h-4 w-4" />
+            Organizations
           </NavLink>
         ) : null}
       </nav>
