@@ -60,6 +60,9 @@ jobs:
           cache: npm
           cache-dependency-path: src/package-lock.json
 
+      - name: Use npm from packageManager
+        run: npm install -g npm@11.19.0
+
       - name: Install
         run: npm ci
 
