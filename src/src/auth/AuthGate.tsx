@@ -1,47 +1,61 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { InteractionStatus } from '@azure/msal-browser'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
-import { login } from '@/auth/auth'
-import { Button } from '@/components/ui/Button'
+import { useQuery } from '@tanstack/react-query'
+import { getCurrentUser } from '@/api/me'
+import { ApiError } from '@/api/apiFetch'
+import { classifyAccessError } from '@/auth/accessError'
+import { getAuthDisplayName } from '@/auth/auth'
 import { Spinner } from '@/components/ui/Spinner'
+import { queryKeys } from '@/lib/queryKeys'
 import { ui } from '@/lib/uiClasses'
+import { WelcomePage } from '@/pages/WelcomePage'
+
+function FullPageSpinner({ label }: { label: string }) {
+  return (
+    <div className={`flex min-h-screen items-center justify-center ${ui.page.background}`}>
+      <Spinner label={label} />
+    </div>
+  )
+}
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const { inProgress, accounts } = useMsal()
   const isAuthenticated = useIsAuthenticated()
-  const loginStarted = useRef(false)
+  const account = accounts[0]
+  const meQuery = useQuery({
+    queryKey: queryKeys.me,
+    queryFn: ({ signal }) => getCurrentUser({ signal }),
+    enabled: isAuthenticated && inProgress === InteractionStatus.None,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
+        return false
+      }
 
-  useEffect(() => {
-    if (
-      inProgress === InteractionStatus.None &&
-      !isAuthenticated &&
-      accounts.length === 0 &&
-      !loginStarted.current
-    ) {
-      loginStarted.current = true
-      void login()
-    }
-  }, [accounts.length, inProgress, isAuthenticated])
+      return failureCount < 1
+    },
+  })
 
   if (inProgress !== InteractionStatus.None) {
-    return (
-      <div className={`flex min-h-screen items-center justify-center ${ui.page.background}`}>
-        <Spinner label="Signing in" />
-      </div>
-    )
+    return <FullPageSpinner label="Signing in" />
   }
 
   if (!isAuthenticated) {
+    return <WelcomePage variant="guest" />
+  }
+
+  if (meQuery.isPending) {
+    return <FullPageSpinner label="Loading workspace" />
+  }
+
+  if (meQuery.isError) {
     return (
-      <div className={`flex min-h-screen items-center justify-center ${ui.page.background}`}>
-        <div className={`${ui.surface.card} w-full max-w-md p-8 text-center`}>
-          <h1 className={ui.text.cardTitle}>BrokerBook</h1>
-          <p className={`mt-2 ${ui.text.mutedSm}`}>Sign in with your work account to continue.</p>
-          <Button className="mt-6 w-full" onClick={() => void login()}>
-            Sign in
-          </Button>
-        </div>
-      </div>
+      <WelcomePage
+        variant={classifyAccessError(meQuery.error)}
+        signedInAs={account?.name || getAuthDisplayName()}
+        signedInEmail={account?.username}
+        onRetry={() => void meQuery.refetch()}
+      />
     )
   }
 
