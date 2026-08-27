@@ -41,7 +41,7 @@ function getPageMeta(pathname: string) {
     }
   }
 
-  return pageTitles[pathname] ?? { title: 'Life Insurance CRM' }
+  return pageTitles[pathname] ?? { title: 'BrokerBook' }
 }
 
 export function AppShell() {

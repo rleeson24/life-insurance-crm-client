@@ -30,7 +30,7 @@ export function Sidebar() {
           <Shield className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-semibold">Life Insurance CRM</p>
+          <p className="text-sm font-semibold">BrokerBook</p>
           <p className="text-xs text-slate-400">Advisor workspace</p>
         </div>
       </div>

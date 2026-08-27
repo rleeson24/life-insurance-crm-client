@@ -35,7 +35,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     return (
       <div className={`flex min-h-screen items-center justify-center ${ui.page.background}`}>
         <div className={`${ui.surface.card} w-full max-w-md p-8 text-center`}>
-          <h1 className={ui.text.cardTitle}>Life Insurance CRM</h1>
+          <h1 className={ui.text.cardTitle}>BrokerBook</h1>
           <p className={`mt-2 ${ui.text.mutedSm}`}>Sign in with your work account to continue.</p>
           <Button className="mt-6 w-full" onClick={() => void login()}>
             Sign in
