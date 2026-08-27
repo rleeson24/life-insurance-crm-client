@@ -62,6 +62,7 @@ export function AdminTenantsPage() {
     }) => updateTenant(tenantId, model),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tenants })
+      queryClient.invalidateQueries({ queryKey: queryKeys.me })
       queryClient.invalidateQueries({ queryKey: ['organization-users'] })
       setErrorMessage(null)
     },

@@ -22,6 +22,7 @@ export function Sidebar() {
   })
   const canManageUsers = canManageOrganizationUsers(meQuery.data?.role)
   const platformOperator = isSuperAdmin(meQuery.data?.role)
+  const tenantName = meQuery.data?.tenantName?.trim() || 'BrokerBook'
 
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-950 text-slate-100">
@@ -29,8 +30,10 @@ export function Sidebar() {
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
           <Shield className="h-5 w-5" />
         </div>
-        <div>
-          <p className="text-sm font-semibold">BrokerBook</p>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold" title={tenantName}>
+            {tenantName}
+          </p>
           <p className="text-xs text-slate-400">Advisor workspace</p>
         </div>
       </div>
