@@ -39,7 +39,7 @@ Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity is Con
 Run **Deploy client** (`deploy-client.yml`) with:
 
 - environment: `dev` or `prod`
-- resource group: the same group the API infra deployed (for example `rg-licrm-dev`)
+- resource group: the same group the API infra deployed (for example `rg-bbcrm-dev`)
 
 The workflow:
 
