@@ -8,6 +8,7 @@ import type {
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { ui } from '@/lib/uiClasses'
+import { HraRadioGroup } from '@/components/clients/HraRadioGroup'
 
 export type DrugPlanEnrollmentFormValues = {
   recordedAtLocal: string
@@ -15,7 +16,7 @@ export type DrugPlanEnrollmentFormValues = {
   planName: string
   coverageStartDate: string
   isNewEnrollment: boolean
-  healthReimbursementArrangement: string
+  healthReimbursementArrangement: boolean
   enrollmentPlatform: string
   enrollmentLocation: string
   notes: string
@@ -28,7 +29,7 @@ export function drugPlanEnrollmentFormEmpty(): DrugPlanEnrollmentFormValues {
     planName: '',
     coverageStartDate: '',
     isNewEnrollment: false,
-    healthReimbursementArrangement: '',
+    healthReimbursementArrangement: false,
     enrollmentPlatform: '',
     enrollmentLocation: '',
     notes: '',
@@ -44,7 +45,7 @@ export function drugPlanEnrollmentFormFromDto(
     planName: enrollment.planName ?? '',
     coverageStartDate: toDateInputValue(enrollment.coverageStartDate),
     isNewEnrollment: enrollment.isNewEnrollment,
-    healthReimbursementArrangement: enrollment.healthReimbursementArrangement ?? '',
+    healthReimbursementArrangement: enrollment.healthReimbursementArrangement,
     enrollmentPlatform: enrollment.enrollmentPlatform ?? '',
     enrollmentLocation: enrollment.enrollmentLocation ?? '',
     notes: enrollment.notes ?? '',
@@ -65,7 +66,7 @@ export function drugPlanEnrollmentFormToPayload(
     planName: emptyToNull(form.planName),
     coverageStartDate: emptyToNull(form.coverageStartDate),
     isNewEnrollment: form.isNewEnrollment,
-    healthReimbursementArrangement: emptyToNull(form.healthReimbursementArrangement),
+    healthReimbursementArrangement: form.healthReimbursementArrangement,
     enrollmentPlatform: emptyToNull(form.enrollmentPlatform),
     enrollmentLocation: emptyToNull(form.enrollmentLocation),
     notes: emptyToNull(form.notes),
@@ -124,15 +125,13 @@ export function DrugPlanEnrollmentForm({
           value={form.enrollmentLocation}
           onChange={(event) => onChange('enrollmentLocation', event.target.value)}
         />
-        <Input
-          label="HRA"
-          value={form.healthReimbursementArrangement}
-          onChange={(event) =>
-            onChange('healthReimbursementArrangement', event.target.value)
-          }
-          className="sm:col-span-2"
-        />
       </div>
+
+      <HraRadioGroup
+        name="drug-plan-hra"
+        value={form.healthReimbursementArrangement}
+        onChange={(value) => onChange('healthReimbursementArrangement', value)}
+      />
 
       <div className="flex flex-wrap gap-6">
         <label className={ui.text.checkboxLabel}>

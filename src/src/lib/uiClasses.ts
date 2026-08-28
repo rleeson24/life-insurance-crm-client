@@ -138,6 +138,10 @@ export const ui = {
       'rounded text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-400',
       'border-slate-300 dark:border-slate-600 dark:bg-slate-900',
     ),
+    radio: cn(
+      'text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+      'border-slate-300 dark:border-slate-600 dark:bg-slate-900',
+    ),
   },
   button: {
     base: cn(

@@ -80,7 +80,7 @@ export interface MajorMedicalEnrollmentDto {
   planName?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
-  healthReimbursementArrangement?: string | null
+  healthReimbursementArrangement: boolean
   enrollmentPlatform?: string | null
   enrollmentLocation?: string | null
   notes?: string | null
@@ -96,7 +96,7 @@ export interface DrugPlanEnrollmentDto {
   planName?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
-  healthReimbursementArrangement?: string | null
+  healthReimbursementArrangement: boolean
   enrollmentPlatform?: string | null
   enrollmentLocation?: string | null
   notes?: string | null
@@ -156,7 +156,7 @@ export interface CreateMajorMedicalEnrollmentModel {
   planName?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
-  healthReimbursementArrangement?: string | null
+  healthReimbursementArrangement: boolean
   enrollmentPlatform?: string | null
   enrollmentLocation?: string | null
   notes?: string | null
@@ -170,7 +170,7 @@ export interface CreateDrugPlanEnrollmentModel {
   planName?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
-  healthReimbursementArrangement?: string | null
+  healthReimbursementArrangement: boolean
   enrollmentPlatform?: string | null
   enrollmentLocation?: string | null
   notes?: string | null
