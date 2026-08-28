@@ -258,3 +258,34 @@ export interface UpdateTenantModel {
   isActive?: boolean | null
 }
 
+export type PlanNameKind = 'medicare' | 'drug' | 'secondary'
+
+export interface PlanNameDto {
+  planNameId: string
+  planYear: number
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreatePlanNameModel {
+  planYear: number
+  name: string
+}
+
+export interface UpdatePlanNameModel {
+  name: string
+}
+
+export interface ClonePlanNamesModel {
+  sourceYear: number
+  targetYear: number
+}
+
+export interface ClonePlanNamesResultDto {
+  sourceCount: number
+  clonedCount: number
+  skippedCount: number
+  items: PlanNameDto[]
+}
+

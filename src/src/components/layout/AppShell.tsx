@@ -22,6 +22,10 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     title: 'Users',
     subtitle: 'Map Entra users to CRM organizations',
   },
+  '/admin/plan-names': {
+    title: 'Plan names',
+    subtitle: 'Manage Medicare, drug, and secondary plan names by year',
+  },
   '/admin/tenants': {
     title: 'Organizations',
     subtitle: 'Create CRM tenants and mark them inactive when they leave',

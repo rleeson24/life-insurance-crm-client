@@ -7,12 +7,13 @@ interface TabsProps {
   activeTab: string
   onChange: (tabId: string) => void
   children: ReactNode
+  ariaLabel?: string
 }
 
-export function Tabs({ tabs, activeTab, onChange, children }: TabsProps) {
+export function Tabs({ tabs, activeTab, onChange, children, ariaLabel }: TabsProps) {
   return (
     <div>
-      <div className={ui.tabs.bar} role="tablist" aria-label="Client profile sections">
+      <div className={ui.tabs.bar} role="tablist" aria-label={ariaLabel ?? 'Sections'}>
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab
 

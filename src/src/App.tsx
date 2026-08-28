@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
+import { AdminPlanNamesPage } from '@/pages/AdminPlanNamesPage'
 import { AdminTenantsPage } from '@/pages/AdminTenantsPage'
 import { AdminUsersPage } from '@/pages/AdminUsersPage'
 import { ClientDetailPage } from '@/pages/ClientDetailPage'
@@ -18,6 +19,7 @@ export function App() {
         <Route path="clients/:id/edit" element={<EditClientPage />} />
         <Route path="clients/:id" element={<ClientDetailPage />} />
         <Route path="admin/users" element={<AdminUsersPage />} />
+        <Route path="admin/plan-names" element={<AdminPlanNamesPage />} />
         <Route path="admin/tenants" element={<AdminTenantsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

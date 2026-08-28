@@ -7,4 +7,7 @@ export const queryKeys = {
   tenants: ['tenants'] as const,
   organizationUsers: (tenantId?: string) =>
     ['organization-users', tenantId ?? 'all'] as const,
+  planNames: (kind: string, year: number) => ['plan-names', kind, year] as const,
+  planNameLookup: (kind: string, fromYear: number, toYear: number) =>
+    ['plan-name-lookup', kind, fromYear, toYear] as const,
 }

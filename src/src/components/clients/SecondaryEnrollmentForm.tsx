@@ -7,7 +7,9 @@ import type {
   SecondaryEnrollmentDto,
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
+import { normalizePlanNameInput } from '@/lib/planNames'
 import { ui } from '@/lib/uiClasses'
+import { usePlanNameField } from '@/components/clients/PlanNameField'
 
 export type SecondaryEnrollmentFormValues = {
   recordedAtLocal: string
@@ -49,7 +51,7 @@ export function secondaryEnrollmentFormToPayload(
 ): CreateSecondaryEnrollmentModel {
   return {
     recordedAt: toIsoFromDatetimeLocal(form.recordedAtLocal),
-    planOrCarrierName: emptyToNull(form.planOrCarrierName),
+    planOrCarrierName: emptyToNull(normalizePlanNameInput(form.planOrCarrierName)),
     coverageStartDate: emptyToNull(form.coverageStartDate),
     isActiveCoverage: form.isActiveCoverage,
     notes: emptyToNull(form.notes),
@@ -78,19 +80,26 @@ export function SecondaryEnrollmentForm({
   loading = false,
   errorMessage,
 }: SecondaryEnrollmentFormProps) {
+  const planName = usePlanNameField({
+    kind: 'secondary',
+    coverageStartDate: form.coverageStartDate,
+    label: 'Plan or carrier name',
+    value: form.planOrCarrierName,
+    onChange: (value) => onChange('planOrCarrierName', value),
+  })
+
   return (
-    <form className="space-y-4" onSubmit={onSubmit}>
+    <form
+      className="space-y-4"
+      onSubmit={(event) => planName.handleSubmit(event, onSubmit)}
+    >
       <Input
         label="Recorded at"
         type="datetime-local"
         value={form.recordedAtLocal}
         onChange={(event) => onChange('recordedAtLocal', event.target.value)}
       />
-      <Input
-        label="Plan or carrier name"
-        value={form.planOrCarrierName}
-        onChange={(event) => onChange('planOrCarrierName', event.target.value)}
-      />
+      {planName.field()}
       <Input
         label="Coverage start date"
         type="date"
@@ -124,6 +133,7 @@ export function SecondaryEnrollmentForm({
           {submitLabel}
         </Button>
       </div>
+      {planName.dialog()}
     </form>
   )
 }
