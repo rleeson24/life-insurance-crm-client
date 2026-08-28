@@ -3,13 +3,13 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type {
-  CreateSupplementalEnrollmentModel,
-  SupplementalEnrollmentDto,
+  CreateSecondaryEnrollmentModel,
+  SecondaryEnrollmentDto,
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { ui } from '@/lib/uiClasses'
 
-export type SupplementalEnrollmentFormValues = {
+export type SecondaryEnrollmentFormValues = {
   recordedAtLocal: string
   planOrCarrierName: string
   coverageStartDate: string
@@ -17,7 +17,7 @@ export type SupplementalEnrollmentFormValues = {
   notes: string
 }
 
-export function supplementalEnrollmentFormEmpty(): SupplementalEnrollmentFormValues {
+export function secondaryEnrollmentFormEmpty(): SecondaryEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(),
     planOrCarrierName: '',
@@ -27,9 +27,9 @@ export function supplementalEnrollmentFormEmpty(): SupplementalEnrollmentFormVal
   }
 }
 
-export function supplementalEnrollmentFormFromDto(
-  enrollment: SupplementalEnrollmentDto,
-): SupplementalEnrollmentFormValues {
+export function secondaryEnrollmentFormFromDto(
+  enrollment: SecondaryEnrollmentDto,
+): SecondaryEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(enrollment.recordedAt),
     planOrCarrierName: enrollment.planOrCarrierName ?? '',
@@ -44,9 +44,9 @@ function emptyToNull(value: string) {
   return trimmed ? trimmed : null
 }
 
-export function supplementalEnrollmentFormToPayload(
-  form: SupplementalEnrollmentFormValues,
-): CreateSupplementalEnrollmentModel {
+export function secondaryEnrollmentFormToPayload(
+  form: SecondaryEnrollmentFormValues,
+): CreateSecondaryEnrollmentModel {
   return {
     recordedAt: toIsoFromDatetimeLocal(form.recordedAtLocal),
     planOrCarrierName: emptyToNull(form.planOrCarrierName),
@@ -56,11 +56,11 @@ export function supplementalEnrollmentFormToPayload(
   }
 }
 
-interface SupplementalEnrollmentFormProps {
-  form: SupplementalEnrollmentFormValues
-  onChange: <K extends keyof SupplementalEnrollmentFormValues>(
+interface SecondaryEnrollmentFormProps {
+  form: SecondaryEnrollmentFormValues
+  onChange: <K extends keyof SecondaryEnrollmentFormValues>(
     key: K,
-    value: SupplementalEnrollmentFormValues[K],
+    value: SecondaryEnrollmentFormValues[K],
   ) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onCancel: () => void
@@ -69,7 +69,7 @@ interface SupplementalEnrollmentFormProps {
   errorMessage?: string | null
 }
 
-export function SupplementalEnrollmentForm({
+export function SecondaryEnrollmentForm({
   form,
   onChange,
   onSubmit,
@@ -77,7 +77,7 @@ export function SupplementalEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
-}: SupplementalEnrollmentFormProps) {
+}: SecondaryEnrollmentFormProps) {
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <Input

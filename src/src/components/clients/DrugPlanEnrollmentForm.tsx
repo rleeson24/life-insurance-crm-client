@@ -3,51 +3,49 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type {
-  CreateMedicareEnrollmentModel,
-  MedicareEnrollmentDto,
+  CreateDrugPlanEnrollmentModel,
+  DrugPlanEnrollmentDto,
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { ui } from '@/lib/uiClasses'
+import { HraRadioGroup } from '@/components/clients/HraRadioGroup'
 
-export type MedicareEnrollmentFormValues = {
+export type DrugPlanEnrollmentFormValues = {
   recordedAtLocal: string
   isActivePlan: boolean
   planName: string
-  prescriptionDrugPlan: string
   coverageStartDate: string
   isNewEnrollment: boolean
-  healthReimbursementArrangement: string
+  healthReimbursementArrangement: boolean
   enrollmentPlatform: string
   enrollmentLocation: string
   notes: string
 }
 
-export function medicareEnrollmentFormEmpty(): MedicareEnrollmentFormValues {
+export function drugPlanEnrollmentFormEmpty(): DrugPlanEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(),
     isActivePlan: true,
     planName: '',
-    prescriptionDrugPlan: '',
     coverageStartDate: '',
     isNewEnrollment: false,
-    healthReimbursementArrangement: '',
+    healthReimbursementArrangement: false,
     enrollmentPlatform: '',
     enrollmentLocation: '',
     notes: '',
   }
 }
 
-export function medicareEnrollmentFormFromDto(
-  enrollment: MedicareEnrollmentDto,
-): MedicareEnrollmentFormValues {
+export function drugPlanEnrollmentFormFromDto(
+  enrollment: DrugPlanEnrollmentDto,
+): DrugPlanEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(enrollment.recordedAt),
     isActivePlan: enrollment.isActivePlan,
     planName: enrollment.planName ?? '',
-    prescriptionDrugPlan: enrollment.prescriptionDrugPlan ?? '',
     coverageStartDate: toDateInputValue(enrollment.coverageStartDate),
     isNewEnrollment: enrollment.isNewEnrollment,
-    healthReimbursementArrangement: enrollment.healthReimbursementArrangement ?? '',
+    healthReimbursementArrangement: enrollment.healthReimbursementArrangement,
     enrollmentPlatform: enrollment.enrollmentPlatform ?? '',
     enrollmentLocation: enrollment.enrollmentLocation ?? '',
     notes: enrollment.notes ?? '',
@@ -59,28 +57,27 @@ function emptyToNull(value: string) {
   return trimmed ? trimmed : null
 }
 
-export function medicareEnrollmentFormToPayload(
-  form: MedicareEnrollmentFormValues,
-): CreateMedicareEnrollmentModel {
+export function drugPlanEnrollmentFormToPayload(
+  form: DrugPlanEnrollmentFormValues,
+): CreateDrugPlanEnrollmentModel {
   return {
     recordedAt: toIsoFromDatetimeLocal(form.recordedAtLocal),
     isActivePlan: form.isActivePlan,
     planName: emptyToNull(form.planName),
-    prescriptionDrugPlan: emptyToNull(form.prescriptionDrugPlan),
     coverageStartDate: emptyToNull(form.coverageStartDate),
     isNewEnrollment: form.isNewEnrollment,
-    healthReimbursementArrangement: emptyToNull(form.healthReimbursementArrangement),
+    healthReimbursementArrangement: form.healthReimbursementArrangement,
     enrollmentPlatform: emptyToNull(form.enrollmentPlatform),
     enrollmentLocation: emptyToNull(form.enrollmentLocation),
     notes: emptyToNull(form.notes),
   }
 }
 
-interface MedicareEnrollmentFormProps {
-  form: MedicareEnrollmentFormValues
-  onChange: <K extends keyof MedicareEnrollmentFormValues>(
+interface DrugPlanEnrollmentFormProps {
+  form: DrugPlanEnrollmentFormValues
+  onChange: <K extends keyof DrugPlanEnrollmentFormValues>(
     key: K,
-    value: MedicareEnrollmentFormValues[K],
+    value: DrugPlanEnrollmentFormValues[K],
   ) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onCancel: () => void
@@ -89,7 +86,7 @@ interface MedicareEnrollmentFormProps {
   errorMessage?: string | null
 }
 
-export function MedicareEnrollmentForm({
+export function DrugPlanEnrollmentForm({
   form,
   onChange,
   onSubmit,
@@ -97,7 +94,7 @@ export function MedicareEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
-}: MedicareEnrollmentFormProps) {
+}: DrugPlanEnrollmentFormProps) {
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -119,11 +116,6 @@ export function MedicareEnrollmentForm({
           onChange={(event) => onChange('planName', event.target.value)}
         />
         <Input
-          label="Prescription drug plan"
-          value={form.prescriptionDrugPlan}
-          onChange={(event) => onChange('prescriptionDrugPlan', event.target.value)}
-        />
-        <Input
           label="Enrollment platform"
           value={form.enrollmentPlatform}
           onChange={(event) => onChange('enrollmentPlatform', event.target.value)}
@@ -133,15 +125,13 @@ export function MedicareEnrollmentForm({
           value={form.enrollmentLocation}
           onChange={(event) => onChange('enrollmentLocation', event.target.value)}
         />
-        <Input
-          label="HRA"
-          value={form.healthReimbursementArrangement}
-          onChange={(event) =>
-            onChange('healthReimbursementArrangement', event.target.value)
-          }
-          className="sm:col-span-2"
-        />
       </div>
+
+      <HraRadioGroup
+        name="drug-plan-hra"
+        value={form.healthReimbursementArrangement}
+        onChange={(value) => onChange('healthReimbursementArrangement', value)}
+      />
 
       <div className="flex flex-wrap gap-6">
         <label className={ui.text.checkboxLabel}>
