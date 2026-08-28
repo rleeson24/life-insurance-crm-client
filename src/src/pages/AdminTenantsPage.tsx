@@ -95,13 +95,14 @@ export function AdminTenantsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p className={ui.text.mutedSm}>
           CRM organizations isolate client data. Mark an organization inactive when
           they stop using the app; their users cannot sign in until you reactivate it.
         </p>
         <Button
           type="button"
+          className="w-full sm:w-auto"
           onClick={() => {
             setName('')
             setErrorMessage(null)
@@ -123,15 +124,19 @@ export function AdminTenantsPage() {
         <p className={ui.text.errorBanner}>{errorMessage}</p>
       ) : null}
 
-      <Card>
-        {tenantsQuery.isLoading ? (
+      {tenantsQuery.isLoading ? (
+        <Card>
           <SkeletonRows rows={6} />
-        ) : tenantsQuery.isError ? (
+        </Card>
+      ) : tenantsQuery.isError ? (
+        <Card>
           <EmptyState
             title="Unable to load organizations"
             description="Check that the API is running and that you are a SuperAdmin."
           />
-        ) : tenantsQuery.data?.length === 0 ? (
+        </Card>
+      ) : tenantsQuery.data?.length === 0 ? (
+        <Card>
           <EmptyState
             title="No organizations"
             description="Create a CRM organization, then add its first administrator from Users."
@@ -141,35 +146,55 @@ export function AdminTenantsPage() {
               </Button>
             }
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className={ui.table.head}>
-                <tr>
-                  <th className="px-3 py-3 font-medium">Organization</th>
-                  <th className="px-3 py-3 font-medium">Tenant ID</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody className={ui.table.body}>
-                {tenantsQuery.data?.map((tenant) => (
-                  <TenantRow
-                    key={tenant.tenantId}
-                    tenant={tenant}
-                    disabled={updateMutation.isPending}
-                    onStatusChange={(isActive) =>
-                      updateMutation.mutate({
-                        tenantId: tenant.tenantId,
-                        isActive,
-                      })
-                    }
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <>
+          <ul className="grid gap-3 md:hidden">
+            {tenantsQuery.data?.map((tenant) => (
+              <li key={tenant.tenantId}>
+                <TenantCard
+                  tenant={tenant}
+                  disabled={updateMutation.isPending}
+                  onStatusChange={(isActive) =>
+                    updateMutation.mutate({
+                      tenantId: tenant.tenantId,
+                      isActive,
+                    })
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+          <Card className="hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className={ui.table.head}>
+                  <tr>
+                    <th className="px-3 py-3 font-medium">Organization</th>
+                    <th className="px-3 py-3 font-medium">Tenant ID</th>
+                    <th className="px-3 py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className={ui.table.body}>
+                  {tenantsQuery.data?.map((tenant) => (
+                    <TenantRow
+                      key={tenant.tenantId}
+                      tenant={tenant}
+                      disabled={updateMutation.isPending}
+                      onStatusChange={(isActive) =>
+                        updateMutation.mutate({
+                          tenantId: tenant.tenantId,
+                          isActive,
+                        })
+                      }
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
 
       <Modal
         open={formOpen}
@@ -204,6 +229,32 @@ export function AdminTenantsPage() {
   )
 }
 
+function TenantCard({
+  tenant,
+  disabled,
+  onStatusChange,
+}: {
+  tenant: TenantDto
+  disabled: boolean
+  onStatusChange: (isActive: boolean) => void
+}) {
+  return (
+    <article className={ui.surface.listCard}>
+      <p className={ui.text.itemTitle}>{tenant.name}</p>
+      <p className={`mt-2 break-all font-mono text-xs ${ui.text.secondary}`}>
+        {tenant.tenantId}
+      </p>
+      <div className="mt-3">
+        <TenantStatusSelect
+          tenant={tenant}
+          disabled={disabled}
+          onStatusChange={onStatusChange}
+        />
+      </div>
+    </article>
+  )
+}
+
 function TenantRow({
   tenant,
   disabled,
@@ -222,19 +273,35 @@ function TenantRow({
         {tenant.tenantId}
       </td>
       <td className="px-3 py-3">
-        <select
-          className={ui.field.control}
-          value={tenant.isActive ? 'active' : 'inactive'}
+        <TenantStatusSelect
+          tenant={tenant}
           disabled={disabled}
-          aria-label={`Status for ${tenant.name}`}
-          onChange={(event) =>
-            onStatusChange(event.target.value === 'active')
-          }
-        >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          onStatusChange={onStatusChange}
+        />
       </td>
     </tr>
+  )
+}
+
+function TenantStatusSelect({
+  tenant,
+  disabled,
+  onStatusChange,
+}: {
+  tenant: TenantDto
+  disabled: boolean
+  onStatusChange: (isActive: boolean) => void
+}) {
+  return (
+    <select
+      className={`${ui.field.control} w-full`}
+      value={tenant.isActive ? 'active' : 'inactive'}
+      disabled={disabled}
+      aria-label={`Status for ${tenant.name}`}
+      onChange={(event) => onStatusChange(event.target.value === 'active')}
+    >
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
   )
 }

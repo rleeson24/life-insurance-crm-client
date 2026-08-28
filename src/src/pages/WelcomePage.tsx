@@ -93,7 +93,7 @@ export function WelcomePage({
 
   return (
     <div className={cn('flex min-h-screen flex-col', ui.page.background)}>
-      <header className="flex items-center justify-between px-6 py-5 sm:px-8">
+      <header className="flex items-center justify-between px-4 py-4 sm:px-8 sm:py-5">
         <div className="flex items-center gap-3">
           <div
             className={cn(
@@ -111,13 +111,13 @@ export function WelcomePage({
         <ThemeToggle />
       </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-12 sm:px-8">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-8 sm:px-8 sm:py-12">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <p className={cn('text-sm font-medium', 'text-indigo-600 dark:text-indigo-400')}>
               BrokerBook
             </p>
-            <h1 className={cn('mt-3 text-4xl font-semibold tracking-tight', ui.text.primary)}>
+            <h1 className={cn('mt-3 text-3xl font-semibold tracking-tight sm:text-4xl', ui.text.primary)}>
               Advisor workspace for your book of business
             </h1>
             <p className={cn('mt-4 max-w-md text-base', ui.text.secondary)}>
@@ -139,7 +139,7 @@ export function WelcomePage({
             </ul>
           </div>
 
-          <section className={cn(ui.surface.card, 'p-8')}>
+          <section className={cn(ui.surface.card, 'p-5 sm:p-8')}>
             {isGuest ? (
               <>
                 <h2 className={ui.text.cardTitle}>Sign in to continue</h2>

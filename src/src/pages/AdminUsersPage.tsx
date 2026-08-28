@@ -160,18 +160,18 @@ export function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p className={ui.text.mutedSm}>
           {platformOperator
             ? 'Map Entra users to any CRM organization. SuperAdmin is assigned with the provision script, not from this screen.'
             : `Map people who already exist in Entra. Isolation is by CRM tenant (${tenantName}), not by Entra directory ID.`}
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           {platformOperator ? (
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:gap-2">
               <span className={ui.text.label}>Organization</span>
               <select
-                className={ui.field.control}
+                className={`${ui.field.control} w-full sm:w-auto`}
                 value={tenantFilter}
                 onChange={(event) => setTenantFilter(event.target.value)}
               >
@@ -187,6 +187,7 @@ export function AdminUsersPage() {
           ) : null}
           <Button
             type="button"
+            className="w-full sm:w-auto"
             onClick={() => {
               setForm({
                 ...emptyForm,
@@ -212,15 +213,19 @@ export function AdminUsersPage() {
         <p className={ui.text.errorBanner}>{errorMessage}</p>
       ) : null}
 
-      <Card>
-        {usersQuery.isLoading ? (
+      {usersQuery.isLoading ? (
+        <Card>
           <SkeletonRows rows={6} />
-        ) : usersQuery.isError ? (
+        </Card>
+      ) : usersQuery.isError ? (
+        <Card>
           <EmptyState
             title="Unable to load users"
             description="Check that the API is running and that you can manage users."
           />
-        ) : usersQuery.data?.length === 0 ? (
+        </Card>
+      ) : usersQuery.data?.length === 0 ? (
+        <Card>
           <EmptyState
             title="No users in this organization"
             description="Add an Entra user by their Object ID."
@@ -230,44 +235,69 @@ export function AdminUsersPage() {
               </Button>
             }
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className={ui.table.head}>
-                <tr>
-                  <th className="px-3 py-3 font-medium">User</th>
-                  {platformOperator ? (
-                    <th className="px-3 py-3 font-medium">Organization</th>
-                  ) : null}
-                  <th className="px-3 py-3 font-medium">Entra object ID</th>
-                  <th className="px-3 py-3 font-medium">Role</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody className={ui.table.body}>
-                {usersQuery.data?.map((user) => (
-                  <UserRow
-                    key={user.organizationUserId}
-                    user={user}
-                    showTenant={platformOperator}
-                    disabled={updateMutation.isPending}
-                    onChange={(patch) =>
-                      updateMutation.mutate({
-                        organizationUserId: user.organizationUserId,
-                        displayName: user.displayName ?? '',
-                        emailAddress: user.emailAddress,
-                        role: user.role,
-                        isActive: user.isActive,
-                        ...patch,
-                      })
-                    }
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <>
+          <ul className="grid gap-3 md:hidden">
+            {usersQuery.data?.map((user) => (
+              <li key={user.organizationUserId}>
+                <UserCard
+                  user={user}
+                  showTenant={platformOperator}
+                  disabled={updateMutation.isPending}
+                  onChange={(patch) =>
+                    updateMutation.mutate({
+                      organizationUserId: user.organizationUserId,
+                      displayName: user.displayName ?? '',
+                      emailAddress: user.emailAddress,
+                      role: user.role,
+                      isActive: user.isActive,
+                      ...patch,
+                    })
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+          <Card className="hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className={ui.table.head}>
+                  <tr>
+                    <th className="px-3 py-3 font-medium">User</th>
+                    {platformOperator ? (
+                      <th className="px-3 py-3 font-medium">Organization</th>
+                    ) : null}
+                    <th className="px-3 py-3 font-medium">Entra object ID</th>
+                    <th className="px-3 py-3 font-medium">Role</th>
+                    <th className="px-3 py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className={ui.table.body}>
+                  {usersQuery.data?.map((user) => (
+                    <UserRow
+                      key={user.organizationUserId}
+                      user={user}
+                      showTenant={platformOperator}
+                      disabled={updateMutation.isPending}
+                      onChange={(patch) =>
+                        updateMutation.mutate({
+                          organizationUserId: user.organizationUserId,
+                          displayName: user.displayName ?? '',
+                          emailAddress: user.emailAddress,
+                          role: user.role,
+                          isActive: user.isActive,
+                          ...patch,
+                        })
+                      }
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
 
       <Modal
         open={formOpen}
@@ -367,6 +397,39 @@ export function AdminUsersPage() {
   )
 }
 
+function UserCard({
+  user,
+  showTenant,
+  disabled,
+  onChange,
+}: {
+  user: OrganizationUserDto
+  showTenant: boolean
+  disabled: boolean
+  onChange: (patch: { role?: string; isActive?: boolean }) => void
+}) {
+  return (
+    <article className={ui.surface.listCard}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className={ui.text.itemTitle}>{user.displayName || '—'}</p>
+          <p className={`mt-0.5 truncate ${ui.text.mutedSm}`}>{user.emailAddress || '—'}</p>
+        </div>
+        <StatusToggle user={user} disabled={disabled} onChange={onChange} />
+      </div>
+      {showTenant ? (
+        <p className={`mt-3 text-sm ${ui.text.secondary}`}>
+          {user.tenantName || user.tenantId}
+        </p>
+      ) : null}
+      <p className={`mt-3 break-all font-mono text-xs ${ui.text.secondary}`}>{user.userId}</p>
+      <div className="mt-3">
+        <RoleControl user={user} disabled={disabled} onChange={onChange} />
+      </div>
+    </article>
+  )
+}
+
 function UserRow({
   user,
   showTenant,
@@ -378,8 +441,6 @@ function UserRow({
   disabled: boolean
   onChange: (patch: { role?: string; isActive?: boolean }) => void
 }) {
-  const platformUser = isSuperAdmin(user.role)
-
   return (
     <tr className={ui.table.row}>
       <td className="px-3 py-3">
@@ -393,36 +454,64 @@ function UserRow({
         {user.userId}
       </td>
       <td className="px-3 py-3">
-        {platformUser ? (
-          <span className={ui.text.itemTitle}>{user.role}</span>
-        ) : (
-          <select
-            className={ui.field.control}
-            value={user.role}
-            disabled={disabled}
-            aria-label={`Role for ${user.displayName ?? user.userId}`}
-            onChange={(event) => onChange({ role: event.target.value })}
-          >
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-        )}
+        <RoleControl user={user} disabled={disabled} onChange={onChange} />
       </td>
       <td className="px-3 py-3">
-        <button
-          type="button"
-          disabled={disabled}
-          className="rounded-full"
-          onClick={() => onChange({ isActive: !user.isActive })}
-        >
-          <Badge variant={user.isActive ? 'success' : 'muted'}>
-            {user.isActive ? 'Active' : 'Inactive'}
-          </Badge>
-        </button>
+        <StatusToggle user={user} disabled={disabled} onChange={onChange} />
       </td>
     </tr>
+  )
+}
+
+function RoleControl({
+  user,
+  disabled,
+  onChange,
+}: {
+  user: OrganizationUserDto
+  disabled: boolean
+  onChange: (patch: { role?: string; isActive?: boolean }) => void
+}) {
+  if (isSuperAdmin(user.role)) {
+    return <span className={ui.text.itemTitle}>{user.role}</span>
+  }
+
+  return (
+    <select
+      className={`${ui.field.control} w-full`}
+      value={user.role}
+      disabled={disabled}
+      aria-label={`Role for ${user.displayName ?? user.userId}`}
+      onChange={(event) => onChange({ role: event.target.value })}
+    >
+      {roles.map((role) => (
+        <option key={role} value={role}>
+          {role}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+function StatusToggle({
+  user,
+  disabled,
+  onChange,
+}: {
+  user: OrganizationUserDto
+  disabled: boolean
+  onChange: (patch: { role?: string; isActive?: boolean }) => void
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      className="rounded-full"
+      onClick={() => onChange({ isActive: !user.isActive })}
+    >
+      <Badge variant={user.isActive ? 'success' : 'muted'}>
+        {user.isActive ? 'Active' : 'Inactive'}
+      </Badge>
+    </button>
   )
 }

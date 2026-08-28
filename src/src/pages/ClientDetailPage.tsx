@@ -366,7 +366,7 @@ export function ClientDetailPage() {
   const detail = detailQuery.data
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Link to="/clients" className={ui.link.back}>
         <ArrowLeft className="h-4 w-4" />
         Back to clients
@@ -396,9 +396,9 @@ export function ClientDetailPage() {
         />
       ) : (
         <Card>
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <h2 className={ui.text.cardTitle}>
+          <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+              <h2 className={`${ui.text.cardTitle} break-words`}>
                 {formatClientName(
                   client.firstName,
                   client.lastName,
@@ -410,8 +410,8 @@ export function ClientDetailPage() {
               </Badge>
               {client.isAcaClient ? <Badge variant="muted">ACA</Badge> : null}
             </div>
-            <Link to={`/clients/${id}/edit`}>
-              <Button variant="secondary">
+            <Link to={`/clients/${id}/edit`} className="w-full sm:w-auto">
+              <Button variant="secondary" className="w-full sm:w-auto">
                 <Pencil className="h-4 w-4" />
                 Edit client
               </Button>
@@ -420,7 +420,7 @@ export function ClientDetailPage() {
 
           <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab}>
             {activeTab === 'overview' ? (
-              <dl className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <dl className="grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
                 <DetailField label="Primary phone" value={client.primaryPhone} />
                 <DetailField label="Email" value={client.emailAddress} />
                 <DetailField label="Date of birth" value={formatDate(client.dateOfBirth)} />
@@ -451,9 +451,9 @@ export function ClientDetailPage() {
 
             {activeTab === 'activity' ? (
               <section>
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                   <h3 className={ui.text.subsectionTitle}>Interactions</h3>
-                  <Button variant="secondary" onClick={openInteractionCreate}>
+                  <Button variant="secondary" className="w-full sm:w-auto" onClick={openInteractionCreate}>
                     <Plus className="h-4 w-4" />
                     Log activity
                   </Button>
@@ -474,9 +474,9 @@ export function ClientDetailPage() {
                     {detail.interactions.map((interaction) => (
                       <li
                         key={interaction.clientInteractionId}
-                        className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
+                        className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
                       >
-                        <div>
+                        <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className={ui.text.itemTitle}>
                               {interaction.summary || 'Interaction'}
@@ -495,6 +495,7 @@ export function ClientDetailPage() {
                         <div className="flex gap-2">
                           <Button
                             variant="ghost"
+                            className="flex-1 sm:flex-none"
                             onClick={() => openInteractionEdit(interaction)}
                           >
                             <Pencil className="h-4 w-4" />
@@ -502,6 +503,7 @@ export function ClientDetailPage() {
                           </Button>
                           <Button
                             variant="ghost"
+                            className="flex-1 sm:flex-none"
                             onClick={() =>
                               setDeleteTarget({
                                 type: 'interaction',
@@ -524,9 +526,9 @@ export function ClientDetailPage() {
             {activeTab === 'coverage' ? (
               <div className="space-y-6">
                 <section>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <h3 className={ui.text.subsectionTitle}>Major Medical enrollments</h3>
-                    <Button variant="secondary" onClick={openMajorMedicalCreate}>
+                    <Button variant="secondary" className="w-full sm:w-auto" onClick={openMajorMedicalCreate}>
                       <Plus className="h-4 w-4" />
                       Add Major Medical
                     </Button>
@@ -540,9 +542,9 @@ export function ClientDetailPage() {
                       {detail.majorMedicalEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.majorMedicalEnrollmentId}
-                          className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
+                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planName || 'Major Medical plan'}
@@ -558,6 +560,7 @@ export function ClientDetailPage() {
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() => openMajorMedicalEdit(enrollment)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -565,6 +568,7 @@ export function ClientDetailPage() {
                             </Button>
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() =>
                                 setDeleteTarget({
                                   type: 'majorMedical',
@@ -584,9 +588,9 @@ export function ClientDetailPage() {
                 </section>
 
                 <section>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <h3 className={ui.text.subsectionTitle}>Drug plan enrollments</h3>
-                    <Button variant="secondary" onClick={openDrugPlanCreate}>
+                    <Button variant="secondary" className="w-full sm:w-auto" onClick={openDrugPlanCreate}>
                       <Plus className="h-4 w-4" />
                       Add drug plan
                     </Button>
@@ -600,9 +604,9 @@ export function ClientDetailPage() {
                       {detail.drugPlanEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.drugPlanEnrollmentId}
-                          className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
+                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planName || 'Drug plan'}
@@ -618,6 +622,7 @@ export function ClientDetailPage() {
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() => openDrugPlanEdit(enrollment)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -625,6 +630,7 @@ export function ClientDetailPage() {
                             </Button>
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() =>
                                 setDeleteTarget({
                                   type: 'drugPlan',
@@ -644,9 +650,9 @@ export function ClientDetailPage() {
                 </section>
 
                 <section>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <h3 className={ui.text.subsectionTitle}>Secondary enrollments</h3>
-                    <Button variant="secondary" onClick={openSecondaryCreate}>
+                    <Button variant="secondary" className="w-full sm:w-auto" onClick={openSecondaryCreate}>
                       <Plus className="h-4 w-4" />
                       Add secondary
                     </Button>
@@ -660,9 +666,9 @@ export function ClientDetailPage() {
                       {detail.secondaryEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.secondaryEnrollmentId}
-                          className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
+                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planOrCarrierName || 'Secondary plan'}
@@ -678,6 +684,7 @@ export function ClientDetailPage() {
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() => openSecondaryEdit(enrollment)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -685,6 +692,7 @@ export function ClientDetailPage() {
                             </Button>
                             <Button
                               variant="ghost"
+                              className="flex-1 sm:flex-none"
                               onClick={() =>
                                 setDeleteTarget({
                                   type: 'secondary',

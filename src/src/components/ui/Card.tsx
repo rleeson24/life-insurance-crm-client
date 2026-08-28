@@ -32,7 +32,7 @@ export function Card({
           {action}
         </header>
       ) : null}
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   )
 }

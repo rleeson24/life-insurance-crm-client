@@ -16,7 +16,7 @@ export function Modal({ open, title, onClose, children, className }: ModalProps)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -29,8 +29,8 @@ export function Modal({ open, title, onClose, children, className }: ModalProps)
       />
       <div
         className={cn(
-          'relative z-10 flex max-h-[min(90vh,720px)] w-full flex-col rounded-xl border shadow-lg',
-          ui.surface.card,
+          'relative z-10 flex max-h-[min(92vh,720px)] w-full flex-col rounded-t-2xl border bg-white shadow-lg sm:rounded-xl dark:bg-slate-900',
+          ui.border.default,
           className ?? 'max-w-lg',
         )}
       >
@@ -47,7 +47,7 @@ export function Modal({ open, title, onClose, children, className }: ModalProps)
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
+        <div className="overflow-y-auto px-4 py-4 sm:px-5">{children}</div>
       </div>
     </div>
   )
