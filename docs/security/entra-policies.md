@@ -2,13 +2,13 @@
 
 Canonical runbook (Conditional Access, both app registrations, Key Vault mapping):
 
-[life-insurance-crm-api `docs/security/entra-policies.md`](https://github.com/rleeson24/life-insurance-crm-api/blob/main/docs/security/entra-policies.md)
+[BrokerBook API `docs/security/entra-policies.md`](https://github.com/rleeson24/life-insurance-crm-api/blob/main/docs/security/entra-policies.md)
 
 This repository is the **SPA**. MFA is enforced in Entra. The React app uses MSAL (`@azure/msal-browser` + `@azure/msal-react`) in local, Azure dev, and prod.
 
 ## SPA registration (this repo)
 
-Create **`LifeInsuranceCRM-SPA`** as a **separate** Entra app from `LifeInsuranceCRM-API`. Do not put a client secret on the SPA.
+Create **`BrokerBookCRM-SPA`** as a **separate** Entra app from `BrokerBookCRM-API`. Do not put a client secret on the SPA.
 
 | Setting | Value |
 |---------|--------|
@@ -16,24 +16,26 @@ Create **`LifeInsuranceCRM-SPA`** as a **separate** Entra app from `LifeInsuranc
 | Platform | Single-page application |
 | Redirect URI (local) | `http://localhost:5387/` |
 | Redirect URI (Azure) | Bicep output `clientRedirectUri` from the API infra deploy (exact match, trailing slash) |
-| API permission | Delegated `api://life-insurance-crm/access_as_user` |
+| API permission | Delegated `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user` |
 | Admin consent | Required |
 
-MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://life-insurance-crm/access_as_user`.
+MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user`.
 
 ### Local
 
-1. Copy [`src/.env.example`](../../src/.env.example) to `src/.env.local` (gitignored) and set `VITE_AZURE_AD_CLIENT_ID`, `VITE_AZURE_AD_TENANT_ID`, and `VITE_AZURE_AD_API_SCOPE`.
+1. Copy [`src/.env.example`](../../src/.env.example) to `src/.env.local` (gitignored) and set `VITE_AZURE_AD_CLIENT_ID` and `VITE_AZURE_AD_TENANT_ID`. `VITE_AZURE_AD_API_SCOPE` is already `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user` in the example.
 2. On the API, put the **API** registration in user secrets so local JWT validation is on:
 
 ```powershell
-cd life-insurance-crm-api/src/main
+cd src/main
 dotnet user-secrets set "AzureAd:TenantId" "<tenant-id>"
-dotnet user-secrets set "AzureAd:ClientId" "<api-client-id>"
-dotnet user-secrets set "AzureAd:Audience" "api://life-insurance-crm"
+dotnet user-secrets set "AzureAd:ClientId" "6c970234-fee3-4568-97d8-7d015c903368"
+dotnet user-secrets set "AzureAd:Audience" "api://6c970234-fee3-4568-97d8-7d015c903368"
 ```
 
-3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` using `life-insurance-crm-api/scripts/provision-organization-user.ps1 -Role SuperAdmin` (JWT `oid` must match). Do not use `NameIdentifier` / `sub`. After that, SuperAdmin creates organizations and maps users from the app; organization Admins manage users in their own tenant only.
+Run those commands in the BrokerBook API repository.
+
+3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` using `scripts/provision-organization-user.ps1 -Role SuperAdmin` in the API repo (JWT `oid` must match). Do not use `NameIdentifier` / `sub`. After that, SuperAdmin creates organizations and maps users from the app; organization Admins manage users in their own tenant only.
 
 How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
 
