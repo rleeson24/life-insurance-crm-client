@@ -1,5 +1,7 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { MobileNav } from '@/components/layout/MobileNav'
 import { Header } from '@/components/layout/Header'
 import { ui } from '@/lib/uiClasses'
 
@@ -47,13 +49,37 @@ function getPageMeta(pathname: string) {
 export function AppShell() {
   const { pathname } = useLocation()
   const meta = getPageMeta(pathname)
+  const [openForPath, setOpenForPath] = useState<string | null>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileNavOpen = openForPath === pathname
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1024px)')
+    function onChange() {
+      if (media.matches) setOpenForPath(null)
+    }
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
+  const closeMobileNav = useCallback(() => {
+    setOpenForPath(null)
+    menuButtonRef.current?.focus()
+  }, [])
 
   return (
     <div className={`flex min-h-screen ${ui.page.background}`}>
-      <Sidebar />
+      <Sidebar className="hidden w-64 lg:flex" />
+      <MobileNav open={mobileNavOpen} onClose={closeMobileNav} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header title={meta.title} subtitle={meta.subtitle} />
-        <main className="flex-1 px-8 py-6">
+        <Header
+          title={meta.title}
+          subtitle={meta.subtitle}
+          menuOpen={mobileNavOpen}
+          menuButtonRef={menuButtonRef}
+          onMenuClick={() => setOpenForPath(pathname)}
+        />
+        <main className={ui.page.main}>
           <Outlet />
         </main>
       </div>

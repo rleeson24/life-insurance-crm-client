@@ -2,8 +2,25 @@ import type { FormEvent, ReactNode } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type { CreateClientModel } from '@/types/apiModels'
-import { toDateInputValue } from '@/lib/format'
+import { cn, toDateInputValue } from '@/lib/format'
 import { ui } from '@/lib/uiClasses'
+
+const fieldGrid = 'grid gap-4 md:grid-cols-2'
+
+function FormSection({
+  title,
+  children,
+}: {
+  title: string
+  children: ReactNode
+}) {
+  return (
+    <fieldset className={ui.surface.formSection}>
+      <legend className={cn('px-1', ui.text.subsectionTitle)}>{title}</legend>
+      {children}
+    </fieldset>
+  )
+}
 
 export type ClientFormValues = CreateClientModel
 
@@ -102,111 +119,51 @@ export function ClientForm({
 }: ClientFormProps) {
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label="First name"
-          value={form.firstName ?? ''}
-          onChange={(event) => onChange('firstName', event.target.value)}
-        />
-        <Input
-          label="Last name"
-          value={form.lastName ?? ''}
-          onChange={(event) => onChange('lastName', event.target.value)}
-        />
-        <Input
-          label="Legal name"
-          value={form.legalName ?? ''}
-          onChange={(event) => onChange('legalName', event.target.value)}
-        />
-        <Input
-          label="Household name"
-          value={form.householdName ?? ''}
-          onChange={(event) => onChange('householdName', event.target.value)}
-        />
-        <Input
-          label="Primary phone"
-          value={form.primaryPhone ?? ''}
-          onChange={(event) => onChange('primaryPhone', event.target.value)}
-        />
-        <Input
-          label="Email"
-          type="email"
-          value={form.emailAddress ?? ''}
-          onChange={(event) => onChange('emailAddress', event.target.value)}
-        />
-        <Input
-          label="Address line 1"
-          value={form.addressLine1 ?? ''}
-          onChange={(event) => onChange('addressLine1', event.target.value)}
-        />
-        <Input
-          label="Address line 2"
-          value={form.addressLine2 ?? ''}
-          onChange={(event) => onChange('addressLine2', event.target.value)}
-        />
-        <Input
-          label="City"
-          value={form.city ?? ''}
-          onChange={(event) => onChange('city', event.target.value)}
-        />
-        <Input
-          label="State"
-          value={form.state ?? ''}
-          onChange={(event) => onChange('state', event.target.value)}
-        />
-        <Input
-          label="Postal code"
-          value={form.postalCode ?? ''}
-          onChange={(event) => onChange('postalCode', event.target.value)}
-        />
-        <Input
-          label="Date of birth"
-          type="date"
-          value={form.dateOfBirth ?? ''}
-          onChange={(event) => onChange('dateOfBirth', event.target.value)}
-        />
-        <Input
-          label="Medicare number"
-          value={form.medicareNumber ?? ''}
-          onChange={(event) => onChange('medicareNumber', event.target.value)}
-        />
-        <Input
-          label="Part A effective date"
-          type="date"
-          value={form.medicarePartAEffectiveDate ?? ''}
-          onChange={(event) =>
-            onChange('medicarePartAEffectiveDate', event.target.value)
-          }
-        />
-        <Input
-          label="Part B effective date"
-          type="date"
-          value={form.medicarePartBEffectiveDate ?? ''}
-          onChange={(event) =>
-            onChange('medicarePartBEffectiveDate', event.target.value)
-          }
-        />
-      </div>
+      <FormSection title="Personal information">
+        <div className={fieldGrid}>
+          <Input
+            label="First name"
+            value={form.firstName ?? ''}
+            onChange={(event) => onChange('firstName', event.target.value)}
+          />
+          <Input
+            label="Last name"
+            value={form.lastName ?? ''}
+            onChange={(event) => onChange('lastName', event.target.value)}
+          />
+          <Input
+            label="Legal name"
+            value={form.legalName ?? ''}
+            onChange={(event) => onChange('legalName', event.target.value)}
+          />
+          <Input
+            label="Household name"
+            value={form.householdName ?? ''}
+            onChange={(event) => onChange('householdName', event.target.value)}
+          />
+          <Input
+            label="Date of birth"
+            type="date"
+            value={form.dateOfBirth ?? ''}
+            onChange={(event) => onChange('dateOfBirth', event.target.value)}
+          />
+        </div>
+      </FormSection>
 
-      <div className="flex flex-wrap gap-6">
-        <label className={ui.text.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={form.isActive ?? true}
-            onChange={(event) => onChange('isActive', event.target.checked)}
-            className={ui.field.checkbox}
+      <FormSection title="Contact">
+        <div className={fieldGrid}>
+          <Input
+            label="Primary phone"
+            value={form.primaryPhone ?? ''}
+            onChange={(event) => onChange('primaryPhone', event.target.value)}
           />
-          Active client
-        </label>
-        <label className={ui.text.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={form.isAcaClient ?? false}
-            onChange={(event) => onChange('isAcaClient', event.target.checked)}
-            className={ui.field.checkbox}
+          <Input
+            label="Email"
+            type="email"
+            value={form.emailAddress ?? ''}
+            onChange={(event) => onChange('emailAddress', event.target.value)}
           />
-          ACA client
-        </label>
+        </div>
         <label className={ui.text.checkboxLabel}>
           <input
             type="checkbox"
@@ -218,13 +175,99 @@ export function ClientForm({
           />
           Contact consent on file
         </label>
-      </div>
+      </FormSection>
 
-      <Textarea
-        label="Notes"
-        value={form.notes ?? ''}
-        onChange={(event) => onChange('notes', event.target.value)}
-      />
+      <FormSection title="Address">
+        <div className={fieldGrid}>
+          <div className="md:col-span-2">
+            <Input
+              label="Address line 1"
+              value={form.addressLine1 ?? ''}
+              onChange={(event) => onChange('addressLine1', event.target.value)}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Input
+              label="Address line 2"
+              value={form.addressLine2 ?? ''}
+              onChange={(event) => onChange('addressLine2', event.target.value)}
+            />
+          </div>
+          <Input
+            label="City"
+            value={form.city ?? ''}
+            onChange={(event) => onChange('city', event.target.value)}
+          />
+          <Input
+            label="State"
+            value={form.state ?? ''}
+            onChange={(event) => onChange('state', event.target.value)}
+          />
+          <Input
+            label="Postal code"
+            value={form.postalCode ?? ''}
+            onChange={(event) => onChange('postalCode', event.target.value)}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection title="Medicare">
+        <div className={fieldGrid}>
+          <Input
+            label="Medicare number"
+            value={form.medicareNumber ?? ''}
+            onChange={(event) => onChange('medicareNumber', event.target.value)}
+          />
+          <Input
+            label="Part A effective date"
+            type="date"
+            value={form.medicarePartAEffectiveDate ?? ''}
+            onChange={(event) =>
+              onChange('medicarePartAEffectiveDate', event.target.value)
+            }
+          />
+          <Input
+            label="Part B effective date"
+            type="date"
+            value={form.medicarePartBEffectiveDate ?? ''}
+            onChange={(event) =>
+              onChange('medicarePartBEffectiveDate', event.target.value)
+            }
+          />
+        </div>
+      </FormSection>
+
+      <FormSection title="Status">
+        <div className="flex flex-wrap gap-6">
+          <label className={ui.text.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={form.isActive ?? true}
+              onChange={(event) => onChange('isActive', event.target.checked)}
+              className={ui.field.checkbox}
+            />
+            Active client
+          </label>
+          <label className={ui.text.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={form.isAcaClient ?? false}
+              onChange={(event) => onChange('isAcaClient', event.target.checked)}
+              className={ui.field.checkbox}
+            />
+            ACA client
+          </label>
+        </div>
+      </FormSection>
+
+      <FormSection title="Notes">
+        <Textarea
+          id="client-notes"
+          aria-label="Notes"
+          value={form.notes ?? ''}
+          onChange={(event) => onChange('notes', event.target.value)}
+        />
+      </FormSection>
 
       {errorMessage ? <p className={ui.text.errorBanner}>{errorMessage}</p> : null}
 

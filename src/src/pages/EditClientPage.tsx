@@ -87,7 +87,7 @@ export function EditClientPage() {
   const client = detailQuery.data?.client
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Link to={`/clients/${id}`} className={ui.link.back}>
         <ArrowLeft className="h-4 w-4" />
         Back to client
@@ -95,12 +95,23 @@ export function EditClientPage() {
 
       {detailQuery.isLoading || !form ? (
         <Card>
-          <Skeleton className="h-8 w-48" />
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <Skeleton className="h-10" />
-            <Skeleton className="h-10" />
-            <Skeleton className="h-10" />
-            <Skeleton className="h-10" />
+          <div className="space-y-6">
+            <div className={ui.surface.formSection}>
+              <Skeleton className="h-5 w-40" />
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+              </div>
+            </div>
+            <div className={ui.surface.formSection}>
+              <Skeleton className="h-5 w-24" />
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+              </div>
+            </div>
           </div>
         </Card>
       ) : detailQuery.isError || !client ? (

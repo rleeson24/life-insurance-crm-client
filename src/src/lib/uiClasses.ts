@@ -41,7 +41,6 @@ const tone = {
 
 const layout = {
   rowBetween: 'flex items-start justify-between gap-4',
-  rowWrapBetween: 'flex flex-wrap items-start justify-between gap-4',
   inlineCenter: 'inline-flex items-center gap-2',
   inlineCenterTight: 'inline-flex items-center gap-1',
 } as const
@@ -66,22 +65,42 @@ function linkAccent(layoutClass: string) {
 export const ui = {
   page: {
     background: tone.surface.page,
+    main: 'flex-1 px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6',
   },
   surface: {
     card: cn('rounded-xl shadow-sm', borderedSurface(tone.border.default)),
-    cardHeader: cn(layout.rowBetween, 'border-b px-5 py-4', tone.border.subtle),
-    header: cn(layout.rowWrapBetween, 'border-b px-8 py-6', borderedSurface(tone.border.default)),
+    cardHeader: cn(layout.rowBetween, 'gap-3 border-b px-4 py-3.5 sm:px-5 sm:py-4', tone.border.subtle),
+    header: cn(
+      'sticky top-0 z-30 flex items-center justify-between gap-3 border-b px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:px-8 lg:py-5',
+      'border-slate-200 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/90',
+    ),
+    listCard: cn(
+      'rounded-xl p-4 shadow-sm transition',
+      borderedSurface(tone.border.default),
+    ),
+    linkCard: cn(
+      'block rounded-xl p-4 shadow-sm transition',
+      borderedSurface(tone.border.default),
+      'hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-700',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+      'active:scale-[0.99]',
+    ),
     empty: cn(
       'flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center',
       tone.border.dashed,
       tone.surface.muted,
     ),
     borderedList: cn('rounded-lg border', tone.divide.subtle, tone.border.subtle),
+    formSection: cn(
+      'space-y-4 rounded-lg border px-4 pb-4 pt-1',
+      tone.border.subtle,
+      tone.surface.muted,
+    ),
     iconAccent:
       'rounded-xl bg-indigo-50 p-3 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400',
   },
   text: {
-    pageTitle: title('text-2xl tracking-tight'),
+    pageTitle: title('text-xl tracking-tight sm:text-2xl'),
     sectionTitle: title('text-base'),
     subsectionTitle: title('text-sm'),
     cardTitle: title('text-xl'),
@@ -163,11 +182,19 @@ export const ui = {
       'bg-rose-600 text-white hover:bg-rose-500 disabled:bg-rose-300 dark:disabled:bg-rose-900',
     toggle: cn(
       layout.inlineCenter,
-      'rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
+      'rounded-lg border px-2.5 py-2 text-sm font-medium transition-colors sm:px-3',
       tone.border.field,
       tone.surface.elevated,
       tone.text.label,
       tone.surface.hoverSubtle,
+    ),
+    icon: cn(
+      'inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-colors',
+      tone.border.field,
+      tone.surface.elevated,
+      tone.text.label,
+      tone.surface.hoverSubtle,
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400',
     ),
     newClient: cn(
       layout.inlineCenter,
@@ -175,11 +202,14 @@ export const ui = {
     ),
   },
   tabs: {
-    bar: cn('flex gap-1 border-b', tone.border.default),
+    bar: cn(
+      'flex gap-1 overflow-x-auto border-b [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+      tone.border.default,
+    ),
     active: 'border-indigo-600 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300',
     inactive:
       'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200',
-    tab: 'border-b-2 px-4 py-3 text-sm font-medium transition-colors',
+    tab: 'shrink-0 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:px-4',
   },
   badge: {
     default: badgeVariant(

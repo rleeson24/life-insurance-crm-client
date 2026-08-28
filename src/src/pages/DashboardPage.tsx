@@ -24,7 +24,7 @@ export function DashboardPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <Card className="overflow-hidden">
           <div className="flex items-start justify-between">
@@ -69,36 +69,36 @@ export function DashboardPage() {
         ) : (
           <ul className={ui.divide.default}>
             {followUpsQuery.data?.map((followUp) => (
-              <li
-                key={followUp.clientInteractionId}
-                className="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      to={`/clients/${followUp.clientId}`}
-                      className={ui.link.item}
-                    >
-                      {formatClientName(
-                        followUp.clientFirstName,
-                        followUp.clientLastName,
-                      )}
-                    </Link>
-                    <Badge variant="warning">Follow-up</Badge>
-                  </div>
-                  <p className={`mt-1 text-sm ${ui.text.secondary}`}>
-                    {followUp.summary || 'No summary provided'}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Contacted {formatDateTime(followUp.contactedAt)}
-                  </p>
-                </div>
+              <li key={followUp.clientInteractionId}>
                 <Link
                   to={`/clients/${followUp.clientId}`}
-                  className={ui.link.accentInline}
+                  className="-mx-1 flex items-start justify-between gap-3 rounded-lg px-1 py-4 first:pt-0 last:pb-0"
                 >
-                  View client
-                  <ArrowRight className="h-4 w-4" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={ui.link.item}>
+                        {formatClientName(
+                          followUp.clientFirstName,
+                          followUp.clientLastName,
+                        )}
+                      </span>
+                      <Badge variant="warning">Follow-up</Badge>
+                    </div>
+                    <p className={`mt-1 text-sm ${ui.text.secondary}`}>
+                      {followUp.summary || 'No summary provided'}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Contacted {formatDateTime(followUp.contactedAt)}
+                    </p>
+                  </div>
+                  <span className={`mt-1 hidden shrink-0 sm:inline-flex ${ui.link.accentInline}`}>
+                    View client
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                  <ArrowRight
+                    className="mt-1 h-5 w-5 shrink-0 text-slate-400 sm:hidden"
+                    aria-hidden="true"
+                  />
                 </Link>
               </li>
             ))}
