@@ -6,7 +6,7 @@ This repository blocks commits that contain likely secrets (API keys, connection
 
 ### One-time setup
 
-**Windows (recommended):** from the repository root (`life-insurance-crm-client`):
+**Windows (recommended):** from the BrokerBook client repository root:
 
 ```powershell
 .\scripts\setup-pre-commit.ps1
