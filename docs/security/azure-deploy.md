@@ -32,7 +32,7 @@ Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity is Con
 |----------|--------|
 | `VITE_AZURE_AD_CLIENT_ID` | SPA application (client) ID |
 | `VITE_AZURE_AD_TENANT_ID` | Directory (tenant) ID |
-| `VITE_AZURE_AD_API_SCOPE` | `api://2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6/access_as_user` |
+| `VITE_AZURE_AD_API_SCOPE` | `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user` |
 
 ## Deploy
 

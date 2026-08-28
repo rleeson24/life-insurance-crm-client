@@ -16,21 +16,21 @@ Create **`BrokerBookCRM-SPA`** as a **separate** Entra app from `BrokerBookCRM-A
 | Platform | Single-page application |
 | Redirect URI (local) | `http://localhost:5387/` |
 | Redirect URI (Azure) | Bicep output `clientRedirectUri` from the API infra deploy (exact match, trailing slash) |
-| API permission | Delegated `api://2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6/access_as_user` |
+| API permission | Delegated `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user` |
 | Admin consent | Required |
 
-MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6/access_as_user`.
+MSAL will use the SPA application (client) ID, the directory tenant ID, and scope `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user`.
 
 ### Local
 
-1. Copy [`src/.env.example`](../../src/.env.example) to `src/.env.local` (gitignored) and set `VITE_AZURE_AD_CLIENT_ID` and `VITE_AZURE_AD_TENANT_ID`. `VITE_AZURE_AD_API_SCOPE` is already `api://2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6/access_as_user` in the example.
+1. Copy [`src/.env.example`](../../src/.env.example) to `src/.env.local` (gitignored) and set `VITE_AZURE_AD_CLIENT_ID` and `VITE_AZURE_AD_TENANT_ID`. `VITE_AZURE_AD_API_SCOPE` is already `api://6c970234-fee3-4568-97d8-7d015c903368/access_as_user` in the example.
 2. On the API, put the **API** registration in user secrets so local JWT validation is on:
 
 ```powershell
 cd src/main
 dotnet user-secrets set "AzureAd:TenantId" "<tenant-id>"
-dotnet user-secrets set "AzureAd:ClientId" "2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6"
-dotnet user-secrets set "AzureAd:Audience" "api://2c56c052-f9bf-4db0-bead-d2e2e4e7f4c6"
+dotnet user-secrets set "AzureAd:ClientId" "6c970234-fee3-4568-97d8-7d015c903368"
+dotnet user-secrets set "AzureAd:Audience" "api://6c970234-fee3-4568-97d8-7d015c903368"
 ```
 
 Run those commands in the BrokerBook API repository.
