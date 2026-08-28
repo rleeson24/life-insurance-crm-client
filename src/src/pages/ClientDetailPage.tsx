@@ -10,15 +10,20 @@ import {
   updateClientInteraction,
 } from '@/api/clientInteractions'
 import {
-  createMedicareEnrollment,
-  deleteMedicareEnrollment,
-  updateMedicareEnrollment,
-} from '@/api/medicareEnrollments'
+  createMajorMedicalEnrollment,
+  deleteMajorMedicalEnrollment,
+  updateMajorMedicalEnrollment,
+} from '@/api/majorMedicalEnrollments'
 import {
-  createSupplementalEnrollment,
-  deleteSupplementalEnrollment,
-  updateSupplementalEnrollment,
-} from '@/api/supplementalEnrollments'
+  createDrugPlanEnrollment,
+  deleteDrugPlanEnrollment,
+  updateDrugPlanEnrollment,
+} from '@/api/drugPlanEnrollments'
+import {
+  createSecondaryEnrollment,
+  deleteSecondaryEnrollment,
+  updateSecondaryEnrollment,
+} from '@/api/secondaryEnrollments'
 import { ApiError } from '@/api/apiFetch'
 import {
   ClientInteractionForm,
@@ -28,19 +33,26 @@ import {
   type ClientInteractionFormValues,
 } from '@/components/clients/ClientInteractionForm'
 import {
-  MedicareEnrollmentForm,
-  medicareEnrollmentFormEmpty,
-  medicareEnrollmentFormFromDto,
-  medicareEnrollmentFormToPayload,
-  type MedicareEnrollmentFormValues,
-} from '@/components/clients/MedicareEnrollmentForm'
+  MajorMedicalEnrollmentForm,
+  majorMedicalEnrollmentFormEmpty,
+  majorMedicalEnrollmentFormFromDto,
+  majorMedicalEnrollmentFormToPayload,
+  type MajorMedicalEnrollmentFormValues,
+} from '@/components/clients/MajorMedicalEnrollmentForm'
 import {
-  SupplementalEnrollmentForm,
-  supplementalEnrollmentFormEmpty,
-  supplementalEnrollmentFormFromDto,
-  supplementalEnrollmentFormToPayload,
-  type SupplementalEnrollmentFormValues,
-} from '@/components/clients/SupplementalEnrollmentForm'
+  DrugPlanEnrollmentForm,
+  drugPlanEnrollmentFormEmpty,
+  drugPlanEnrollmentFormFromDto,
+  drugPlanEnrollmentFormToPayload,
+  type DrugPlanEnrollmentFormValues,
+} from '@/components/clients/DrugPlanEnrollmentForm'
+import {
+  SecondaryEnrollmentForm,
+  secondaryEnrollmentFormEmpty,
+  secondaryEnrollmentFormFromDto,
+  secondaryEnrollmentFormToPayload,
+  type SecondaryEnrollmentFormValues,
+} from '@/components/clients/SecondaryEnrollmentForm'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -53,8 +65,9 @@ import { queryKeys } from '@/lib/queryKeys'
 import { ui } from '@/lib/uiClasses'
 import type {
   ClientInteractionDto,
-  MedicareEnrollmentDto,
-  SupplementalEnrollmentDto,
+  DrugPlanEnrollmentDto,
+  MajorMedicalEnrollmentDto,
+  SecondaryEnrollmentDto,
 } from '@/types/apiModels'
 
 const tabs = [
@@ -63,15 +76,20 @@ const tabs = [
   { id: 'coverage', label: 'Coverage' },
 ]
 
-type MedicareModalState =
+type MajorMedicalModalState =
   | { mode: 'closed' }
   | { mode: 'create' }
-  | { mode: 'edit'; enrollment: MedicareEnrollmentDto }
+  | { mode: 'edit'; enrollment: MajorMedicalEnrollmentDto }
 
-type SupplementalModalState =
+type DrugPlanModalState =
   | { mode: 'closed' }
   | { mode: 'create' }
-  | { mode: 'edit'; enrollment: SupplementalEnrollmentDto }
+  | { mode: 'edit'; enrollment: DrugPlanEnrollmentDto }
+
+type SecondaryModalState =
+  | { mode: 'closed' }
+  | { mode: 'create' }
+  | { mode: 'edit'; enrollment: SecondaryEnrollmentDto }
 
 type InteractionModalState =
   | { mode: 'closed' }
@@ -79,8 +97,9 @@ type InteractionModalState =
   | { mode: 'edit'; interaction: ClientInteractionDto }
 
 type DeleteTarget =
-  | { type: 'medicare'; enrollmentId: string; label: string }
-  | { type: 'supplemental'; enrollmentId: string; label: string }
+  | { type: 'majorMedical'; enrollmentId: string; label: string }
+  | { type: 'drugPlan'; enrollmentId: string; label: string }
+  | { type: 'secondary'; enrollmentId: string; label: string }
   | { type: 'interaction'; interactionId: string; label: string }
 
 function DetailField({
@@ -102,15 +121,21 @@ export function ClientDetailPage() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('overview')
-  const [medicareModal, setMedicareModal] = useState<MedicareModalState>({ mode: 'closed' })
-  const [supplementalModal, setSupplementalModal] = useState<SupplementalModalState>({
+  const [majorMedicalModal, setMajorMedicalModal] = useState<MajorMedicalModalState>({
     mode: 'closed',
   })
-  const [medicareForm, setMedicareForm] = useState<MedicareEnrollmentFormValues>(
-    medicareEnrollmentFormEmpty(),
+  const [drugPlanModal, setDrugPlanModal] = useState<DrugPlanModalState>({ mode: 'closed' })
+  const [secondaryModal, setSecondaryModal] = useState<SecondaryModalState>({
+    mode: 'closed',
+  })
+  const [majorMedicalForm, setMajorMedicalForm] = useState<MajorMedicalEnrollmentFormValues>(
+    majorMedicalEnrollmentFormEmpty(),
   )
-  const [supplementalForm, setSupplementalForm] = useState<SupplementalEnrollmentFormValues>(
-    supplementalEnrollmentFormEmpty(),
+  const [drugPlanForm, setDrugPlanForm] = useState<DrugPlanEnrollmentFormValues>(
+    drugPlanEnrollmentFormEmpty(),
+  )
+  const [secondaryForm, setSecondaryForm] = useState<SecondaryEnrollmentFormValues>(
+    secondaryEnrollmentFormEmpty(),
   )
   const [interactionModal, setInteractionModal] = useState<InteractionModalState>({
     mode: 'closed',
@@ -118,8 +143,9 @@ export function ClientDetailPage() {
   const [interactionForm, setInteractionForm] = useState<ClientInteractionFormValues>(
     clientInteractionFormEmpty(),
   )
-  const [medicareError, setMedicareError] = useState<string | null>(null)
-  const [supplementalError, setSupplementalError] = useState<string | null>(null)
+  const [majorMedicalError, setMajorMedicalError] = useState<string | null>(null)
+  const [drugPlanError, setDrugPlanError] = useState<string | null>(null)
+  const [secondaryError, setSecondaryError] = useState<string | null>(null)
   const [interactionError, setInteractionError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
@@ -135,58 +161,83 @@ export function ClientDetailPage() {
     queryClient.invalidateQueries({ queryKey: queryKeys.followUps })
   }
 
-  const medicareSaveMutation = useMutation({
+  const majorMedicalSaveMutation = useMutation({
     mutationFn: async () => {
-      const payload = medicareEnrollmentFormToPayload(medicareForm)
-      if (medicareModal.mode === 'create') {
-        return createMedicareEnrollment(id, payload)
+      const payload = majorMedicalEnrollmentFormToPayload(majorMedicalForm)
+      if (majorMedicalModal.mode === 'create') {
+        return createMajorMedicalEnrollment(id, payload)
       }
-      if (medicareModal.mode === 'edit') {
-        return updateMedicareEnrollment(
+      if (majorMedicalModal.mode === 'edit') {
+        return updateMajorMedicalEnrollment(
           id,
-          medicareModal.enrollment.medicareEnrollmentId,
+          majorMedicalModal.enrollment.majorMedicalEnrollmentId,
           payload,
         )
       }
-      throw new Error('Invalid medicare modal state')
+      throw new Error('Invalid major medical modal state')
     },
     onSuccess: () => {
       invalidateDetail()
-      setMedicareModal({ mode: 'closed' })
-      setMedicareError(null)
+      setMajorMedicalModal({ mode: 'closed' })
+      setMajorMedicalError(null)
     },
     onError: (error) => {
-      setMedicareError(
-        error instanceof ApiError ? error.message : 'Unable to save Medicare enrollment.',
+      setMajorMedicalError(
+        error instanceof ApiError ? error.message : 'Unable to save Major Medical enrollment.',
       )
     },
   })
 
-  const supplementalSaveMutation = useMutation({
+  const drugPlanSaveMutation = useMutation({
     mutationFn: async () => {
-      const payload = supplementalEnrollmentFormToPayload(supplementalForm)
-      if (supplementalModal.mode === 'create') {
-        return createSupplementalEnrollment(id, payload)
+      const payload = drugPlanEnrollmentFormToPayload(drugPlanForm)
+      if (drugPlanModal.mode === 'create') {
+        return createDrugPlanEnrollment(id, payload)
       }
-      if (supplementalModal.mode === 'edit') {
-        return updateSupplementalEnrollment(
+      if (drugPlanModal.mode === 'edit') {
+        return updateDrugPlanEnrollment(
           id,
-          supplementalModal.enrollment.supplementalEnrollmentId,
+          drugPlanModal.enrollment.drugPlanEnrollmentId,
           payload,
         )
       }
-      throw new Error('Invalid supplemental modal state')
+      throw new Error('Invalid drug plan modal state')
     },
     onSuccess: () => {
       invalidateDetail()
-      setSupplementalModal({ mode: 'closed' })
-      setSupplementalError(null)
+      setDrugPlanModal({ mode: 'closed' })
+      setDrugPlanError(null)
     },
     onError: (error) => {
-      setSupplementalError(
-        error instanceof ApiError
-          ? error.message
-          : 'Unable to save supplemental enrollment.',
+      setDrugPlanError(
+        error instanceof ApiError ? error.message : 'Unable to save drug plan enrollment.',
+      )
+    },
+  })
+
+  const secondarySaveMutation = useMutation({
+    mutationFn: async () => {
+      const payload = secondaryEnrollmentFormToPayload(secondaryForm)
+      if (secondaryModal.mode === 'create') {
+        return createSecondaryEnrollment(id, payload)
+      }
+      if (secondaryModal.mode === 'edit') {
+        return updateSecondaryEnrollment(
+          id,
+          secondaryModal.enrollment.secondaryEnrollmentId,
+          payload,
+        )
+      }
+      throw new Error('Invalid secondary modal state')
+    },
+    onSuccess: () => {
+      invalidateDetail()
+      setSecondaryModal({ mode: 'closed' })
+      setSecondaryError(null)
+    },
+    onError: (error) => {
+      setSecondaryError(
+        error instanceof ApiError ? error.message : 'Unable to save secondary enrollment.',
       )
     },
   })
@@ -220,11 +271,14 @@ export function ClientDetailPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (target: DeleteTarget) => {
-      if (target.type === 'medicare') {
-        return deleteMedicareEnrollment(id, target.enrollmentId)
+      if (target.type === 'majorMedical') {
+        return deleteMajorMedicalEnrollment(id, target.enrollmentId)
       }
-      if (target.type === 'supplemental') {
-        return deleteSupplementalEnrollment(id, target.enrollmentId)
+      if (target.type === 'drugPlan') {
+        return deleteDrugPlanEnrollment(id, target.enrollmentId)
+      }
+      if (target.type === 'secondary') {
+        return deleteSecondaryEnrollment(id, target.enrollmentId)
       }
       return deleteClientInteraction(id, target.interactionId)
     },
@@ -240,28 +294,40 @@ export function ClientDetailPage() {
     },
   })
 
-  function openMedicareCreate() {
-    setMedicareForm(medicareEnrollmentFormEmpty())
-    setMedicareError(null)
-    setMedicareModal({ mode: 'create' })
+  function openMajorMedicalCreate() {
+    setMajorMedicalForm(majorMedicalEnrollmentFormEmpty())
+    setMajorMedicalError(null)
+    setMajorMedicalModal({ mode: 'create' })
   }
 
-  function openMedicareEdit(enrollment: MedicareEnrollmentDto) {
-    setMedicareForm(medicareEnrollmentFormFromDto(enrollment))
-    setMedicareError(null)
-    setMedicareModal({ mode: 'edit', enrollment })
+  function openMajorMedicalEdit(enrollment: MajorMedicalEnrollmentDto) {
+    setMajorMedicalForm(majorMedicalEnrollmentFormFromDto(enrollment))
+    setMajorMedicalError(null)
+    setMajorMedicalModal({ mode: 'edit', enrollment })
   }
 
-  function openSupplementalCreate() {
-    setSupplementalForm(supplementalEnrollmentFormEmpty())
-    setSupplementalError(null)
-    setSupplementalModal({ mode: 'create' })
+  function openDrugPlanCreate() {
+    setDrugPlanForm(drugPlanEnrollmentFormEmpty())
+    setDrugPlanError(null)
+    setDrugPlanModal({ mode: 'create' })
   }
 
-  function openSupplementalEdit(enrollment: SupplementalEnrollmentDto) {
-    setSupplementalForm(supplementalEnrollmentFormFromDto(enrollment))
-    setSupplementalError(null)
-    setSupplementalModal({ mode: 'edit', enrollment })
+  function openDrugPlanEdit(enrollment: DrugPlanEnrollmentDto) {
+    setDrugPlanForm(drugPlanEnrollmentFormFromDto(enrollment))
+    setDrugPlanError(null)
+    setDrugPlanModal({ mode: 'edit', enrollment })
+  }
+
+  function openSecondaryCreate() {
+    setSecondaryForm(secondaryEnrollmentFormEmpty())
+    setSecondaryError(null)
+    setSecondaryModal({ mode: 'create' })
+  }
+
+  function openSecondaryEdit(enrollment: SecondaryEnrollmentDto) {
+    setSecondaryForm(secondaryEnrollmentFormFromDto(enrollment))
+    setSecondaryError(null)
+    setSecondaryModal({ mode: 'edit', enrollment })
   }
 
   function openInteractionCreate() {
@@ -276,14 +342,19 @@ export function ClientDetailPage() {
     setInteractionModal({ mode: 'edit', interaction })
   }
 
-  function handleMedicareSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleMajorMedicalSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    medicareSaveMutation.mutate()
+    majorMedicalSaveMutation.mutate()
   }
 
-  function handleSupplementalSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleDrugPlanSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    supplementalSaveMutation.mutate()
+    drugPlanSaveMutation.mutate()
+  }
+
+  function handleSecondarySubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    secondarySaveMutation.mutate()
   }
 
   function handleInteractionSubmit(event: FormEvent<HTMLFormElement>) {
@@ -454,27 +525,27 @@ export function ClientDetailPage() {
               <div className="space-y-6">
                 <section>
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className={ui.text.subsectionTitle}>Medicare enrollments</h3>
-                    <Button variant="secondary" onClick={openMedicareCreate}>
+                    <h3 className={ui.text.subsectionTitle}>Major Medical enrollments</h3>
+                    <Button variant="secondary" onClick={openMajorMedicalCreate}>
                       <Plus className="h-4 w-4" />
-                      Add Medicare
+                      Add Major Medical
                     </Button>
                   </div>
-                  {detail.medicareEnrollments.length === 0 ? (
+                  {detail.majorMedicalEnrollments.length === 0 ? (
                     <p className={`mt-2 ${ui.text.mutedSm}`}>
-                      No Medicare enrollments recorded.
+                      No Major Medical enrollments recorded.
                     </p>
                   ) : (
                     <ul className={`mt-3 ${ui.surface.borderedList}`}>
-                      {detail.medicareEnrollments.map((enrollment) => (
+                      {detail.majorMedicalEnrollments.map((enrollment) => (
                         <li
-                          key={enrollment.medicareEnrollmentId}
+                          key={enrollment.majorMedicalEnrollmentId}
                           className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
                         >
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
-                                {enrollment.planName || 'Medicare plan'}
+                                {enrollment.planName || 'Major Medical plan'}
                               </p>
                               {enrollment.isActivePlan ? (
                                 <Badge variant="success">Active</Badge>
@@ -487,7 +558,7 @@ export function ClientDetailPage() {
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
-                              onClick={() => openMedicareEdit(enrollment)}
+                              onClick={() => openMajorMedicalEdit(enrollment)}
                             >
                               <Pencil className="h-4 w-4" />
                               Edit
@@ -496,9 +567,9 @@ export function ClientDetailPage() {
                               variant="ghost"
                               onClick={() =>
                                 setDeleteTarget({
-                                  type: 'medicare',
-                                  enrollmentId: enrollment.medicareEnrollmentId,
-                                  label: enrollment.planName || 'Medicare plan',
+                                  type: 'majorMedical',
+                                  enrollmentId: enrollment.majorMedicalEnrollmentId,
+                                  label: enrollment.planName || 'Major Medical plan',
                                 })
                               }
                             >
@@ -514,27 +585,87 @@ export function ClientDetailPage() {
 
                 <section>
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className={ui.text.subsectionTitle}>Supplemental coverage</h3>
-                    <Button variant="secondary" onClick={openSupplementalCreate}>
+                    <h3 className={ui.text.subsectionTitle}>Drug plan enrollments</h3>
+                    <Button variant="secondary" onClick={openDrugPlanCreate}>
                       <Plus className="h-4 w-4" />
-                      Add supplemental
+                      Add drug plan
                     </Button>
                   </div>
-                  {detail.supplementalEnrollments.length === 0 ? (
+                  {detail.drugPlanEnrollments.length === 0 ? (
                     <p className={`mt-2 ${ui.text.mutedSm}`}>
-                      No supplemental coverage recorded.
+                      No drug plan enrollments recorded.
                     </p>
                   ) : (
                     <ul className={`mt-3 ${ui.surface.borderedList}`}>
-                      {detail.supplementalEnrollments.map((enrollment) => (
+                      {detail.drugPlanEnrollments.map((enrollment) => (
                         <li
-                          key={enrollment.supplementalEnrollmentId}
+                          key={enrollment.drugPlanEnrollmentId}
                           className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
                         >
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
-                                {enrollment.planOrCarrierName || 'Supplemental plan'}
+                                {enrollment.planName || 'Drug plan'}
+                              </p>
+                              {enrollment.isActivePlan ? (
+                                <Badge variant="success">Active</Badge>
+                              ) : null}
+                            </div>
+                            <p className={`mt-1 text-sm ${ui.text.secondary}`}>
+                              Start {formatDate(enrollment.coverageStartDate)}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              onClick={() => openDrugPlanEdit(enrollment)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              onClick={() =>
+                                setDeleteTarget({
+                                  type: 'drugPlan',
+                                  enrollmentId: enrollment.drugPlanEnrollmentId,
+                                  label: enrollment.planName || 'Drug plan',
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </Button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className={ui.text.subsectionTitle}>Secondary enrollments</h3>
+                    <Button variant="secondary" onClick={openSecondaryCreate}>
+                      <Plus className="h-4 w-4" />
+                      Add secondary
+                    </Button>
+                  </div>
+                  {detail.secondaryEnrollments.length === 0 ? (
+                    <p className={`mt-2 ${ui.text.mutedSm}`}>
+                      No secondary enrollments recorded.
+                    </p>
+                  ) : (
+                    <ul className={`mt-3 ${ui.surface.borderedList}`}>
+                      {detail.secondaryEnrollments.map((enrollment) => (
+                        <li
+                          key={enrollment.secondaryEnrollmentId}
+                          className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
+                        >
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className={ui.text.itemTitle}>
+                                {enrollment.planOrCarrierName || 'Secondary plan'}
                               </p>
                               {enrollment.isActiveCoverage ? (
                                 <Badge variant="success">Active</Badge>
@@ -547,7 +678,7 @@ export function ClientDetailPage() {
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
-                              onClick={() => openSupplementalEdit(enrollment)}
+                              onClick={() => openSecondaryEdit(enrollment)}
                             >
                               <Pencil className="h-4 w-4" />
                               Edit
@@ -556,9 +687,9 @@ export function ClientDetailPage() {
                               variant="ghost"
                               onClick={() =>
                                 setDeleteTarget({
-                                  type: 'supplemental',
-                                  enrollmentId: enrollment.supplementalEnrollmentId,
-                                  label: enrollment.planOrCarrierName || 'Supplemental plan',
+                                  type: 'secondary',
+                                  enrollmentId: enrollment.secondaryEnrollmentId,
+                                  label: enrollment.planOrCarrierName || 'Secondary plan',
                                 })
                               }
                             >
@@ -578,50 +709,73 @@ export function ClientDetailPage() {
       )}
 
       <Modal
-        open={medicareModal.mode !== 'closed'}
+        open={majorMedicalModal.mode !== 'closed'}
         title={
-          medicareModal.mode === 'edit'
-            ? 'Edit Medicare enrollment'
-            : 'Add Medicare enrollment'
+          majorMedicalModal.mode === 'edit'
+            ? 'Edit Major Medical enrollment'
+            : 'Add Major Medical enrollment'
         }
-        onClose={() => setMedicareModal({ mode: 'closed' })}
+        onClose={() => setMajorMedicalModal({ mode: 'closed' })}
         className="max-w-2xl"
       >
-        <MedicareEnrollmentForm
-          form={medicareForm}
+        <MajorMedicalEnrollmentForm
+          form={majorMedicalForm}
           onChange={(key, value) =>
-            setMedicareForm((current) => ({ ...current, [key]: value }))
+            setMajorMedicalForm((current) => ({ ...current, [key]: value }))
           }
-          onSubmit={handleMedicareSubmit}
-          onCancel={() => setMedicareModal({ mode: 'closed' })}
-          submitLabel={medicareModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'}
-          loading={medicareSaveMutation.isPending}
-          errorMessage={medicareError}
+          onSubmit={handleMajorMedicalSubmit}
+          onCancel={() => setMajorMedicalModal({ mode: 'closed' })}
+          submitLabel={majorMedicalModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'}
+          loading={majorMedicalSaveMutation.isPending}
+          errorMessage={majorMedicalError}
         />
       </Modal>
 
       <Modal
-        open={supplementalModal.mode !== 'closed'}
+        open={drugPlanModal.mode !== 'closed'}
         title={
-          supplementalModal.mode === 'edit'
-            ? 'Edit supplemental enrollment'
-            : 'Add supplemental enrollment'
+          drugPlanModal.mode === 'edit'
+            ? 'Edit drug plan enrollment'
+            : 'Add drug plan enrollment'
         }
-        onClose={() => setSupplementalModal({ mode: 'closed' })}
+        onClose={() => setDrugPlanModal({ mode: 'closed' })}
+        className="max-w-2xl"
+      >
+        <DrugPlanEnrollmentForm
+          form={drugPlanForm}
+          onChange={(key, value) =>
+            setDrugPlanForm((current) => ({ ...current, [key]: value }))
+          }
+          onSubmit={handleDrugPlanSubmit}
+          onCancel={() => setDrugPlanModal({ mode: 'closed' })}
+          submitLabel={drugPlanModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'}
+          loading={drugPlanSaveMutation.isPending}
+          errorMessage={drugPlanError}
+        />
+      </Modal>
+
+      <Modal
+        open={secondaryModal.mode !== 'closed'}
+        title={
+          secondaryModal.mode === 'edit'
+            ? 'Edit secondary enrollment'
+            : 'Add secondary enrollment'
+        }
+        onClose={() => setSecondaryModal({ mode: 'closed' })}
         className="max-w-xl"
       >
-        <SupplementalEnrollmentForm
-          form={supplementalForm}
+        <SecondaryEnrollmentForm
+          form={secondaryForm}
           onChange={(key, value) =>
-            setSupplementalForm((current) => ({ ...current, [key]: value }))
+            setSecondaryForm((current) => ({ ...current, [key]: value }))
           }
-          onSubmit={handleSupplementalSubmit}
-          onCancel={() => setSupplementalModal({ mode: 'closed' })}
+          onSubmit={handleSecondarySubmit}
+          onCancel={() => setSecondaryModal({ mode: 'closed' })}
           submitLabel={
-            supplementalModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'
+            secondaryModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'
           }
-          loading={supplementalSaveMutation.isPending}
-          errorMessage={supplementalError}
+          loading={secondarySaveMutation.isPending}
+          errorMessage={secondaryError}
         />
       </Modal>
 

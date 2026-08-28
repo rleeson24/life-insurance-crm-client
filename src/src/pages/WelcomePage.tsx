@@ -36,7 +36,7 @@ const highlights = [
   {
     icon: ShieldCheck,
     title: 'Coverage',
-    description: 'Track Medicare and supplemental enrollments.',
+    description: 'Track Major Medical, drug plan, and secondary enrollments.',
   },
 ] as const
 

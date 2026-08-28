@@ -72,13 +72,12 @@ export interface ClientInteractionDto {
   updatedAt: string
 }
 
-export interface MedicareEnrollmentDto {
-  medicareEnrollmentId: string
+export interface MajorMedicalEnrollmentDto {
+  majorMedicalEnrollmentId: string
   clientId: string
   recordedAt: string
   isActivePlan: boolean
   planName?: string | null
-  prescriptionDrugPlan?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
   healthReimbursementArrangement?: string | null
@@ -89,8 +88,24 @@ export interface MedicareEnrollmentDto {
   updatedAt: string
 }
 
-export interface SupplementalEnrollmentDto {
-  supplementalEnrollmentId: string
+export interface DrugPlanEnrollmentDto {
+  drugPlanEnrollmentId: string
+  clientId: string
+  recordedAt: string
+  isActivePlan: boolean
+  planName?: string | null
+  coverageStartDate?: string | null
+  isNewEnrollment: boolean
+  healthReimbursementArrangement?: string | null
+  enrollmentPlatform?: string | null
+  enrollmentLocation?: string | null
+  notes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SecondaryEnrollmentDto {
+  secondaryEnrollmentId: string
   clientId: string
   recordedAt: string
   planOrCarrierName?: string | null
@@ -104,8 +119,9 @@ export interface SupplementalEnrollmentDto {
 export interface ClientDetailDto {
   client: ClientDto
   interactions: ClientInteractionDto[]
-  medicareEnrollments: MedicareEnrollmentDto[]
-  supplementalEnrollments: SupplementalEnrollmentDto[]
+  majorMedicalEnrollments: MajorMedicalEnrollmentDto[]
+  drugPlanEnrollments: DrugPlanEnrollmentDto[]
+  secondaryEnrollments: SecondaryEnrollmentDto[]
 }
 
 export interface CreateClientModel {
@@ -134,11 +150,10 @@ export interface UpdateClientModel extends CreateClientModel {
   clientId: string
 }
 
-export interface CreateMedicareEnrollmentModel {
+export interface CreateMajorMedicalEnrollmentModel {
   recordedAt: string
   isActivePlan: boolean
   planName?: string | null
-  prescriptionDrugPlan?: string | null
   coverageStartDate?: string | null
   isNewEnrollment: boolean
   healthReimbursementArrangement?: string | null
@@ -147,9 +162,23 @@ export interface CreateMedicareEnrollmentModel {
   notes?: string | null
 }
 
-export interface UpdateMedicareEnrollmentModel extends CreateMedicareEnrollmentModel {}
+export interface UpdateMajorMedicalEnrollmentModel extends CreateMajorMedicalEnrollmentModel {}
 
-export interface CreateSupplementalEnrollmentModel {
+export interface CreateDrugPlanEnrollmentModel {
+  recordedAt: string
+  isActivePlan: boolean
+  planName?: string | null
+  coverageStartDate?: string | null
+  isNewEnrollment: boolean
+  healthReimbursementArrangement?: string | null
+  enrollmentPlatform?: string | null
+  enrollmentLocation?: string | null
+  notes?: string | null
+}
+
+export interface UpdateDrugPlanEnrollmentModel extends CreateDrugPlanEnrollmentModel {}
+
+export interface CreateSecondaryEnrollmentModel {
   recordedAt: string
   planOrCarrierName?: string | null
   coverageStartDate?: string | null
@@ -157,7 +186,7 @@ export interface CreateSupplementalEnrollmentModel {
   notes?: string | null
 }
 
-export interface UpdateSupplementalEnrollmentModel extends CreateSupplementalEnrollmentModel {}
+export interface UpdateSecondaryEnrollmentModel extends CreateSecondaryEnrollmentModel {}
 
 export interface CreateClientInteractionModel {
   contactedAt: string

@@ -3,17 +3,16 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type {
-  CreateMedicareEnrollmentModel,
-  MedicareEnrollmentDto,
+  CreateDrugPlanEnrollmentModel,
+  DrugPlanEnrollmentDto,
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { ui } from '@/lib/uiClasses'
 
-export type MedicareEnrollmentFormValues = {
+export type DrugPlanEnrollmentFormValues = {
   recordedAtLocal: string
   isActivePlan: boolean
   planName: string
-  prescriptionDrugPlan: string
   coverageStartDate: string
   isNewEnrollment: boolean
   healthReimbursementArrangement: string
@@ -22,12 +21,11 @@ export type MedicareEnrollmentFormValues = {
   notes: string
 }
 
-export function medicareEnrollmentFormEmpty(): MedicareEnrollmentFormValues {
+export function drugPlanEnrollmentFormEmpty(): DrugPlanEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(),
     isActivePlan: true,
     planName: '',
-    prescriptionDrugPlan: '',
     coverageStartDate: '',
     isNewEnrollment: false,
     healthReimbursementArrangement: '',
@@ -37,14 +35,13 @@ export function medicareEnrollmentFormEmpty(): MedicareEnrollmentFormValues {
   }
 }
 
-export function medicareEnrollmentFormFromDto(
-  enrollment: MedicareEnrollmentDto,
-): MedicareEnrollmentFormValues {
+export function drugPlanEnrollmentFormFromDto(
+  enrollment: DrugPlanEnrollmentDto,
+): DrugPlanEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(enrollment.recordedAt),
     isActivePlan: enrollment.isActivePlan,
     planName: enrollment.planName ?? '',
-    prescriptionDrugPlan: enrollment.prescriptionDrugPlan ?? '',
     coverageStartDate: toDateInputValue(enrollment.coverageStartDate),
     isNewEnrollment: enrollment.isNewEnrollment,
     healthReimbursementArrangement: enrollment.healthReimbursementArrangement ?? '',
@@ -59,14 +56,13 @@ function emptyToNull(value: string) {
   return trimmed ? trimmed : null
 }
 
-export function medicareEnrollmentFormToPayload(
-  form: MedicareEnrollmentFormValues,
-): CreateMedicareEnrollmentModel {
+export function drugPlanEnrollmentFormToPayload(
+  form: DrugPlanEnrollmentFormValues,
+): CreateDrugPlanEnrollmentModel {
   return {
     recordedAt: toIsoFromDatetimeLocal(form.recordedAtLocal),
     isActivePlan: form.isActivePlan,
     planName: emptyToNull(form.planName),
-    prescriptionDrugPlan: emptyToNull(form.prescriptionDrugPlan),
     coverageStartDate: emptyToNull(form.coverageStartDate),
     isNewEnrollment: form.isNewEnrollment,
     healthReimbursementArrangement: emptyToNull(form.healthReimbursementArrangement),
@@ -76,11 +72,11 @@ export function medicareEnrollmentFormToPayload(
   }
 }
 
-interface MedicareEnrollmentFormProps {
-  form: MedicareEnrollmentFormValues
-  onChange: <K extends keyof MedicareEnrollmentFormValues>(
+interface DrugPlanEnrollmentFormProps {
+  form: DrugPlanEnrollmentFormValues
+  onChange: <K extends keyof DrugPlanEnrollmentFormValues>(
     key: K,
-    value: MedicareEnrollmentFormValues[K],
+    value: DrugPlanEnrollmentFormValues[K],
   ) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onCancel: () => void
@@ -89,7 +85,7 @@ interface MedicareEnrollmentFormProps {
   errorMessage?: string | null
 }
 
-export function MedicareEnrollmentForm({
+export function DrugPlanEnrollmentForm({
   form,
   onChange,
   onSubmit,
@@ -97,7 +93,7 @@ export function MedicareEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
-}: MedicareEnrollmentFormProps) {
+}: DrugPlanEnrollmentFormProps) {
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -117,11 +113,6 @@ export function MedicareEnrollmentForm({
           label="Plan name"
           value={form.planName}
           onChange={(event) => onChange('planName', event.target.value)}
-        />
-        <Input
-          label="Prescription drug plan"
-          value={form.prescriptionDrugPlan}
-          onChange={(event) => onChange('prescriptionDrugPlan', event.target.value)}
         />
         <Input
           label="Enrollment platform"
