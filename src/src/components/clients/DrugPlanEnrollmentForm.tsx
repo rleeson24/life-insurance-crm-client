@@ -7,8 +7,10 @@ import type {
   DrugPlanEnrollmentDto,
 } from '@/types/apiModels'
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
+import { normalizePlanNameInput } from '@/lib/planNames'
 import { ui } from '@/lib/uiClasses'
 import { HraRadioGroup } from '@/components/clients/HraRadioGroup'
+import { usePlanNameField } from '@/components/clients/PlanNameField'
 
 export type DrugPlanEnrollmentFormValues = {
   recordedAtLocal: string
@@ -63,7 +65,7 @@ export function drugPlanEnrollmentFormToPayload(
   return {
     recordedAt: toIsoFromDatetimeLocal(form.recordedAtLocal),
     isActivePlan: form.isActivePlan,
-    planName: emptyToNull(form.planName),
+    planName: emptyToNull(normalizePlanNameInput(form.planName)),
     coverageStartDate: emptyToNull(form.coverageStartDate),
     isNewEnrollment: form.isNewEnrollment,
     healthReimbursementArrangement: form.healthReimbursementArrangement,
@@ -95,8 +97,19 @@ export function DrugPlanEnrollmentForm({
   loading = false,
   errorMessage,
 }: DrugPlanEnrollmentFormProps) {
+  const planName = usePlanNameField({
+    kind: 'drug',
+    coverageStartDate: form.coverageStartDate,
+    label: 'Plan name',
+    value: form.planName,
+    onChange: (value) => onChange('planName', value),
+  })
+
   return (
-    <form className="space-y-4" onSubmit={onSubmit}>
+    <form
+      className="space-y-4"
+      onSubmit={(event) => planName.handleSubmit(event, onSubmit)}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
           label="Recorded at"
@@ -110,11 +123,7 @@ export function DrugPlanEnrollmentForm({
           value={form.coverageStartDate}
           onChange={(event) => onChange('coverageStartDate', event.target.value)}
         />
-        <Input
-          label="Plan name"
-          value={form.planName}
-          onChange={(event) => onChange('planName', event.target.value)}
-        />
+        {planName.field()}
         <Input
           label="Enrollment platform"
           value={form.enrollmentPlatform}
@@ -172,6 +181,7 @@ export function DrugPlanEnrollmentForm({
           {submitLabel}
         </Button>
       </div>
+      {planName.dialog()}
     </form>
   )
 }

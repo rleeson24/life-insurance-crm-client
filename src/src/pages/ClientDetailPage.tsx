@@ -418,7 +418,12 @@ export function ClientDetailPage() {
             </Link>
           </div>
 
-          <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab}>
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            ariaLabel="Client profile sections"
+          >
             {activeTab === 'overview' ? (
               <dl className="grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
                 <DetailField label="Primary phone" value={client.primaryPhone} />

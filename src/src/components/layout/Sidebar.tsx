@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard,
+  List,
   LogOut,
   Users,
   Shield,
@@ -108,6 +109,23 @@ export function Sidebar({ className, onNavigate, onClose }: SidebarProps) {
           >
             <UserCog className="h-4 w-4" />
             Users
+          </NavLink>
+        ) : null}
+        {canManageUsers ? (
+          <NavLink
+            to="/admin/plan-names"
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-indigo-500/15 text-indigo-200'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white',
+              )
+            }
+          >
+            <List className="h-4 w-4" />
+            Plan names
           </NavLink>
         ) : null}
         {platformOperator ? (
