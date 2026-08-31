@@ -117,6 +117,57 @@ function DetailField({
   )
 }
 
+function EnrollmentBadges({
+  isActive,
+  isNewEnrollment,
+  hasHra,
+}: {
+  isActive: boolean
+  isNewEnrollment?: boolean
+  hasHra?: boolean
+}) {
+  return (
+    <>
+      {isActive ? <Badge variant="success">Active</Badge> : null}
+      {isNewEnrollment ? <Badge>New</Badge> : null}
+      {hasHra ? <Badge variant="warning">HRA</Badge> : null}
+    </>
+  )
+}
+
+function EnrollmentCardFields({
+  coverageStartDate,
+  recordedAt,
+  enrollmentPlatform,
+  enrollmentLocation,
+  notes,
+}: {
+  coverageStartDate?: string | null
+  recordedAt: string
+  enrollmentPlatform?: string | null
+  enrollmentLocation?: string | null
+  notes?: string | null
+}) {
+  const showPlatform = enrollmentPlatform !== undefined
+  const showLocation = enrollmentLocation !== undefined
+
+  return (
+    <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+      <DetailField label="Coverage start" value={formatDate(coverageStartDate)} />
+      <DetailField label="Recorded" value={formatDateTime(recordedAt)} />
+      {showPlatform ? (
+        <DetailField label="Platform" value={enrollmentPlatform} />
+      ) : null}
+      {showLocation ? (
+        <DetailField label="Location" value={enrollmentLocation} />
+      ) : null}
+      <div className="sm:col-span-2">
+        <DetailField label="Notes" value={notes} />
+      </div>
+    </dl>
+  )
+}
+
 export function ClientDetailPage() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
@@ -543,24 +594,30 @@ export function ClientDetailPage() {
                       No Major Medical enrollments recorded.
                     </p>
                   ) : (
-                    <ul className={`mt-3 ${ui.surface.borderedList}`}>
+                    <ul className={`mt-3 divide-y ${ui.surface.borderedList}`}>
                       {detail.majorMedicalEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.majorMedicalEnrollmentId}
-                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
+                          className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planName || 'Major Medical plan'}
                               </p>
-                              {enrollment.isActivePlan ? (
-                                <Badge variant="success">Active</Badge>
-                              ) : null}
+                              <EnrollmentBadges
+                                isActive={enrollment.isActivePlan}
+                                isNewEnrollment={enrollment.isNewEnrollment}
+                                hasHra={enrollment.healthReimbursementArrangement}
+                              />
                             </div>
-                            <p className={`mt-1 text-sm ${ui.text.secondary}`}>
-                              Start {formatDate(enrollment.coverageStartDate)}
-                            </p>
+                            <EnrollmentCardFields
+                              coverageStartDate={enrollment.coverageStartDate}
+                              recordedAt={enrollment.recordedAt}
+                              enrollmentPlatform={enrollment.enrollmentPlatform}
+                              enrollmentLocation={enrollment.enrollmentLocation}
+                              notes={enrollment.notes}
+                            />
                           </div>
                           <div className="flex gap-2">
                             <Button
@@ -605,24 +662,30 @@ export function ClientDetailPage() {
                       No drug plan enrollments recorded.
                     </p>
                   ) : (
-                    <ul className={`mt-3 ${ui.surface.borderedList}`}>
+                    <ul className={`mt-3 divide-y ${ui.surface.borderedList}`}>
                       {detail.drugPlanEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.drugPlanEnrollmentId}
-                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
+                          className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planName || 'Drug plan'}
                               </p>
-                              {enrollment.isActivePlan ? (
-                                <Badge variant="success">Active</Badge>
-                              ) : null}
+                              <EnrollmentBadges
+                                isActive={enrollment.isActivePlan}
+                                isNewEnrollment={enrollment.isNewEnrollment}
+                                hasHra={enrollment.healthReimbursementArrangement}
+                              />
                             </div>
-                            <p className={`mt-1 text-sm ${ui.text.secondary}`}>
-                              Start {formatDate(enrollment.coverageStartDate)}
-                            </p>
+                            <EnrollmentCardFields
+                              coverageStartDate={enrollment.coverageStartDate}
+                              recordedAt={enrollment.recordedAt}
+                              enrollmentPlatform={enrollment.enrollmentPlatform}
+                              enrollmentLocation={enrollment.enrollmentLocation}
+                              notes={enrollment.notes}
+                            />
                           </div>
                           <div className="flex gap-2">
                             <Button
@@ -667,24 +730,24 @@ export function ClientDetailPage() {
                       No secondary enrollments recorded.
                     </p>
                   ) : (
-                    <ul className={`mt-3 ${ui.surface.borderedList}`}>
+                    <ul className={`mt-3 divide-y ${ui.surface.borderedList}`}>
                       {detail.secondaryEnrollments.map((enrollment) => (
                         <li
                           key={enrollment.secondaryEnrollmentId}
-                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
+                          className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
                         >
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className={ui.text.itemTitle}>
                                 {enrollment.planOrCarrierName || 'Secondary plan'}
                               </p>
-                              {enrollment.isActiveCoverage ? (
-                                <Badge variant="success">Active</Badge>
-                              ) : null}
+                              <EnrollmentBadges isActive={enrollment.isActiveCoverage} />
                             </div>
-                            <p className={`mt-1 text-sm ${ui.text.secondary}`}>
-                              Start {formatDate(enrollment.coverageStartDate)}
-                            </p>
+                            <EnrollmentCardFields
+                              coverageStartDate={enrollment.coverageStartDate}
+                              recordedAt={enrollment.recordedAt}
+                              notes={enrollment.notes}
+                            />
                           </div>
                           <div className="flex gap-2">
                             <Button
