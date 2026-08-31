@@ -8,6 +8,7 @@ import {
   Shield,
   UserCog,
   Building2,
+  Upload,
   X,
 } from 'lucide-react'
 import { useMsal } from '@azure/msal-react'
@@ -126,6 +127,23 @@ export function Sidebar({ className, onNavigate, onClose }: SidebarProps) {
           >
             <List className="h-4 w-4" />
             Plan names
+          </NavLink>
+        ) : null}
+        {canManageUsers ? (
+          <NavLink
+            to="/admin/import"
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-indigo-500/15 text-indigo-200'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white',
+              )
+            }
+          >
+            <Upload className="h-4 w-4" />
+            Import
           </NavLink>
         ) : null}
         {platformOperator ? (

@@ -12,6 +12,10 @@ export default defineConfig(({ mode }) => {
   
   return {
   plugins: [react(), tailwindcss()],
+  define: {
+    global: 'globalThis',
+    process: `({ env: { NODE_ENV: ${JSON.stringify(mode)} }, browser: true, version: 'v18.0.0', nextTick: (cb) => queueMicrotask(cb) })`,
+  },
   server: {
     port: Number(process.env.PORT) || 5387,
     strictPort: !!process.env.PORT,
@@ -28,6 +32,9 @@ export default defineConfig(({ mode }) => {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // mdb-reader's exports map prefers "node"; Rolldown would pull Node crypto/zlib.
+      'mdb-reader': path.resolve(__dirname, 'node_modules/mdb-reader/lib/browser/index.js'),
+      'create-hash': path.resolve(__dirname, 'node_modules/create-hash/browser.js'),
     },
   },
 }})

@@ -1,7 +1,12 @@
+const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/
+
 export function formatDate(value?: string | null): string {
   if (!value) return '—'
 
-  const date = new Date(value)
+  const dateOnly = DATE_ONLY.exec(value)
+  const date = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : new Date(value)
   if (Number.isNaN(date.getTime())) return value
 
   return new Intl.DateTimeFormat(undefined, {

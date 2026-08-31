@@ -26,6 +26,10 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     title: 'Plan names',
     subtitle: 'Manage Medicare, drug, and secondary plan names by year',
   },
+  '/admin/import': {
+    title: 'Import',
+    subtitle: 'Load clients, plans, and contacts from an Access database',
+  },
   '/admin/tenants': {
     title: 'Organizations',
     subtitle: 'Create CRM tenants and mark them inactive when they leave',
