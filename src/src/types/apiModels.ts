@@ -289,3 +289,26 @@ export interface ClonePlanNamesResultDto {
   items: PlanNameDto[]
 }
 
+export type AccessRow = Record<string, unknown>
+
+export interface AccessImportModel {
+  clients: AccessRow[]
+  medEnrollments: AccessRow[]
+  otherEnrollments: AccessRow[]
+  contacts: AccessRow[]
+  /** Minutes to add to local time to get UTC (`Date#getTimezoneOffset()`). */
+  timeZoneOffsetMinutes?: number
+}
+
+export interface AccessImportResultDto {
+  clientsInserted: number
+  majorMedicalEnrollmentsInserted: number
+  drugPlanEnrollmentsInserted: number
+  secondaryEnrollmentsInserted: number
+  interactionsInserted: number
+  medicarePlanNamesInserted: number
+  drugPlanNamesInserted: number
+  secondaryPlanNamesInserted: number
+  warnings: string[]
+}
+
