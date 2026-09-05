@@ -85,6 +85,7 @@ interface DrugPlanEnrollmentFormProps {
   submitLabel: string
   loading?: boolean
   errorMessage?: string | null
+  showActive?: boolean
 }
 
 export function DrugPlanEnrollmentForm({
@@ -95,6 +96,7 @@ export function DrugPlanEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
+  showActive = true,
 }: DrugPlanEnrollmentFormProps) {
   const planName = usePlanNameField({
     kind: 'drug',
@@ -135,17 +137,19 @@ export function DrugPlanEnrollmentForm({
         />
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <label className={ui.text.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={form.isActivePlan}
-            onChange={(event) => onChange('isActivePlan', event.target.checked)}
-            className={ui.field.checkbox}
-          />
-          Active
-        </label>
-      </div>
+      {showActive ? (
+        <div className="flex flex-wrap gap-6">
+          <label className={ui.text.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={form.isActivePlan}
+              onChange={(event) => onChange('isActivePlan', event.target.checked)}
+              className={ui.field.checkbox}
+            />
+            Active
+          </label>
+        </div>
+      ) : null}
 
       <Textarea
         label="Notes"

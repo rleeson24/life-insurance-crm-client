@@ -130,7 +130,6 @@ function EnrollmentBadges({
     <>
       {isActive ? <Badge variant="success">Active</Badge> : null}
       {isNewEnrollment ? <Badge>New</Badge> : null}
-      {hasHra ? <Badge variant="warning">HRA</Badge> : null}
     </>
   )
 }
@@ -216,7 +215,7 @@ export function ClientDetailPage() {
     mutationFn: async () => {
       const payload = majorMedicalEnrollmentFormToPayload(majorMedicalForm)
       if (majorMedicalModal.mode === 'create') {
-        return createMajorMedicalEnrollment(id, payload)
+        return createMajorMedicalEnrollment(id, { ...payload, isActivePlan: true })
       }
       if (majorMedicalModal.mode === 'edit') {
         return updateMajorMedicalEnrollment(
@@ -243,7 +242,7 @@ export function ClientDetailPage() {
     mutationFn: async () => {
       const payload = drugPlanEnrollmentFormToPayload(drugPlanForm)
       if (drugPlanModal.mode === 'create') {
-        return createDrugPlanEnrollment(id, payload)
+        return createDrugPlanEnrollment(id, { ...payload, isActivePlan: true })
       }
       if (drugPlanModal.mode === 'edit') {
         return updateDrugPlanEnrollment(
@@ -270,7 +269,7 @@ export function ClientDetailPage() {
     mutationFn: async () => {
       const payload = secondaryEnrollmentFormToPayload(secondaryForm)
       if (secondaryModal.mode === 'create') {
-        return createSecondaryEnrollment(id, payload)
+        return createSecondaryEnrollment(id, { ...payload, isActiveCoverage: true })
       }
       if (secondaryModal.mode === 'edit') {
         return updateSecondaryEnrollment(
@@ -804,6 +803,7 @@ export function ClientDetailPage() {
           submitLabel={majorMedicalModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'}
           loading={majorMedicalSaveMutation.isPending}
           errorMessage={majorMedicalError}
+          showActive={majorMedicalModal.mode === 'edit'}
         />
       </Modal>
 
@@ -827,6 +827,7 @@ export function ClientDetailPage() {
           submitLabel={drugPlanModal.mode === 'edit' ? 'Save changes' : 'Add enrollment'}
           loading={drugPlanSaveMutation.isPending}
           errorMessage={drugPlanError}
+          showActive={drugPlanModal.mode === 'edit'}
         />
       </Modal>
 
@@ -852,6 +853,7 @@ export function ClientDetailPage() {
           }
           loading={secondarySaveMutation.isPending}
           errorMessage={secondaryError}
+          showActive={secondaryModal.mode === 'edit'}
         />
       </Modal>
 

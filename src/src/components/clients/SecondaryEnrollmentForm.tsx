@@ -69,6 +69,7 @@ interface SecondaryEnrollmentFormProps {
   submitLabel: string
   loading?: boolean
   errorMessage?: string | null
+  showActive?: boolean
 }
 
 export function SecondaryEnrollmentForm({
@@ -79,6 +80,7 @@ export function SecondaryEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
+  showActive = true,
 }: SecondaryEnrollmentFormProps) {
   const planName = usePlanNameField({
     kind: 'secondary',
@@ -107,15 +109,17 @@ export function SecondaryEnrollmentForm({
         onChange={(event) => onChange('coverageStartDate', event.target.value)}
       />
 
-      <label className={ui.text.checkboxLabel}>
-        <input
-          type="checkbox"
-          checked={form.isActiveCoverage}
-          onChange={(event) => onChange('isActiveCoverage', event.target.checked)}
-          className={ui.field.checkbox}
-        />
-        Active coverage
-      </label>
+      {showActive ? (
+        <label className={ui.text.checkboxLabel}>
+          <input
+            type="checkbox"
+            checked={form.isActiveCoverage}
+            onChange={(event) => onChange('isActiveCoverage', event.target.checked)}
+            className={ui.field.checkbox}
+          />
+          Active
+        </label>
+      ) : null}
 
       <Textarea
         label="Notes"

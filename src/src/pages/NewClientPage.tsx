@@ -44,7 +44,7 @@ export function NewClientPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage(null)
-    createMutation.mutate(clientFormToPayload(form))
+    createMutation.mutate({ ...clientFormToPayload(form), isActive: true })
   }
 
   return (
@@ -54,6 +54,7 @@ export function NewClientPage() {
         onChange={updateField}
         onSubmit={handleSubmit}
         errorMessage={errorMessage}
+        showActive={false}
         actions={
           <div className="flex flex-wrap gap-3">
             <Button type="submit" loading={createMutation.isPending}>
