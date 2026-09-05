@@ -85,6 +85,7 @@ interface MajorMedicalEnrollmentFormProps {
   submitLabel: string
   loading?: boolean
   errorMessage?: string | null
+  showActive?: boolean
 }
 
 export function MajorMedicalEnrollmentForm({
@@ -95,6 +96,7 @@ export function MajorMedicalEnrollmentForm({
   submitLabel,
   loading = false,
   errorMessage,
+  showActive = true,
 }: MajorMedicalEnrollmentFormProps) {
   const planName = usePlanNameField({
     kind: 'medicare',
@@ -136,15 +138,17 @@ export function MajorMedicalEnrollmentForm({
       </div>
 
       <div className="flex flex-wrap gap-6">
-        <label className={ui.text.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={form.isActivePlan}
-            onChange={(event) => onChange('isActivePlan', event.target.checked)}
-            className={ui.field.checkbox}
-          />
-          Active
-        </label>
+        {showActive ? (
+          <label className={ui.text.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={form.isActivePlan}
+              onChange={(event) => onChange('isActivePlan', event.target.checked)}
+              className={ui.field.checkbox}
+            />
+            Active
+          </label>
+        ) : null}
         <label className={ui.text.checkboxLabel}>
           <input
             type="checkbox"

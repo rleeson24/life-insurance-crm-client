@@ -33,6 +33,7 @@ interface ClientFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   errorMessage?: string | null
   actions: ReactNode
+  showActive?: boolean
 }
 
 export function clientFormFromDto(client: ClientFormValues & { clientId?: string }): ClientFormValues {
@@ -116,6 +117,7 @@ export function ClientForm({
   onSubmit,
   errorMessage,
   actions,
+  showActive = true,
 }: ClientFormProps) {
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
@@ -239,15 +241,17 @@ export function ClientForm({
 
       <FormSection title="Status">
         <div className="flex flex-wrap gap-6">
-          <label className={ui.text.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={form.isActive ?? true}
-              onChange={(event) => onChange('isActive', event.target.checked)}
-              className={ui.field.checkbox}
-            />
-            Active client
-          </label>
+          {showActive ? (
+            <label className={ui.text.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={form.isActive ?? true}
+                onChange={(event) => onChange('isActive', event.target.checked)}
+                className={ui.field.checkbox}
+              />
+              Active
+            </label>
+          ) : null}
           <label className={ui.text.checkboxLabel}>
             <input
               type="checkbox"
