@@ -144,16 +144,7 @@ export function DrugPlanEnrollmentForm({
             onChange={(event) => onChange('isActivePlan', event.target.checked)}
             className={ui.field.checkbox}
           />
-          Active plan
-        </label>
-        <label className={ui.text.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={form.isNewEnrollment}
-            onChange={(event) => onChange('isNewEnrollment', event.target.checked)}
-            className={ui.field.checkbox}
-          />
-          New enrollment
+          Active
         </label>
       </div>
 

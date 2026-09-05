@@ -144,7 +144,7 @@ export function MajorMedicalEnrollmentForm({
             onChange={(event) => onChange('isActivePlan', event.target.checked)}
             className={ui.field.checkbox}
           />
-          Active plan
+          Active
         </label>
         <label className={ui.text.checkboxLabel}>
           <input
@@ -153,7 +153,7 @@ export function MajorMedicalEnrollmentForm({
             onChange={(event) => onChange('isNewEnrollment', event.target.checked)}
             className={ui.field.checkbox}
           />
-          New enrollment
+          New to MA
         </label>
       </div>
 
