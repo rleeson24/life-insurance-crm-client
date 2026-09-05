@@ -136,12 +136,6 @@ export function DrugPlanEnrollmentForm({
         />
       </div>
 
-      <HraRadioGroup
-        name="drug-plan-hra"
-        value={form.healthReimbursementArrangement}
-        onChange={(value) => onChange('healthReimbursementArrangement', value)}
-      />
-
       <div className="flex flex-wrap gap-6">
         <label className={ui.text.checkboxLabel}>
           <input
