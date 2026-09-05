@@ -120,11 +120,9 @@ function DetailField({
 function EnrollmentBadges({
   isActive,
   isNewEnrollment,
-  hasHra,
 }: {
   isActive: boolean
   isNewEnrollment?: boolean
-  hasHra?: boolean
 }) {
   return (
     <>
@@ -607,7 +605,6 @@ export function ClientDetailPage() {
                               <EnrollmentBadges
                                 isActive={enrollment.isActivePlan}
                                 isNewEnrollment={enrollment.isNewEnrollment}
-                                hasHra={enrollment.healthReimbursementArrangement}
                               />
                             </div>
                             <EnrollmentCardFields
@@ -675,7 +672,6 @@ export function ClientDetailPage() {
                               <EnrollmentBadges
                                 isActive={enrollment.isActivePlan}
                                 isNewEnrollment={enrollment.isNewEnrollment}
-                                hasHra={enrollment.healthReimbursementArrangement}
                               />
                             </div>
                             <EnrollmentCardFields
