@@ -9,7 +9,6 @@ import type {
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { normalizePlanNameInput } from '@/lib/planNames'
 import { ui } from '@/lib/uiClasses'
-import { HraRadioGroup } from '@/components/clients/HraRadioGroup'
 import { usePlanNameField } from '@/components/clients/PlanNameField'
 
 export type MajorMedicalEnrollmentFormValues = {
@@ -136,12 +135,6 @@ export function MajorMedicalEnrollmentForm({
         />
       </div>
 
-      <HraRadioGroup
-        name="major-medical-hra"
-        value={form.healthReimbursementArrangement}
-        onChange={(value) => onChange('healthReimbursementArrangement', value)}
-      />
-
       <div className="flex flex-wrap gap-6">
         <label className={ui.text.checkboxLabel}>
           <input
@@ -150,7 +143,7 @@ export function MajorMedicalEnrollmentForm({
             onChange={(event) => onChange('isActivePlan', event.target.checked)}
             className={ui.field.checkbox}
           />
-          Active plan
+          Active
         </label>
         <label className={ui.text.checkboxLabel}>
           <input
@@ -159,7 +152,7 @@ export function MajorMedicalEnrollmentForm({
             onChange={(event) => onChange('isNewEnrollment', event.target.checked)}
             className={ui.field.checkbox}
           />
-          New enrollment
+          New to MA
         </label>
       </div>
 
