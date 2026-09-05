@@ -9,7 +9,6 @@ import type {
 import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
 import { normalizePlanNameInput } from '@/lib/planNames'
 import { ui } from '@/lib/uiClasses'
-import { HraRadioGroup } from '@/components/clients/HraRadioGroup'
 import { usePlanNameField } from '@/components/clients/PlanNameField'
 
 export type MajorMedicalEnrollmentFormValues = {
