@@ -113,7 +113,7 @@ export function DrugPlanEnrollmentForm({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
-          label="Recorded at"
+          label="Written at"
           type="datetime-local"
           value={form.recordedAtLocal}
           onChange={(event) => onChange('recordedAtLocal', event.target.value)}
