@@ -96,7 +96,7 @@ export function SecondaryEnrollmentForm({
       onSubmit={(event) => planName.handleSubmit(event, onSubmit)}
     >
       <Input
-        label="Recorded at"
+        label="Written at"
         type="datetime-local"
         value={form.recordedAtLocal}
         onChange={(event) => onChange('recordedAtLocal', event.target.value)}
