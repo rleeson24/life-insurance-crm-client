@@ -14,6 +14,10 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     title: 'Clients',
     subtitle: 'Search and manage your book of business',
   },
+  '/reports': {
+    title: 'Reports',
+    subtitle: 'Book of business, production, and retention',
+  },
   '/clients/new': {
     title: 'New Client',
     subtitle: 'Add a new client record',

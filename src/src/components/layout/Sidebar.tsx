@@ -8,6 +8,7 @@ import {
   Shield,
   UserCog,
   Building2,
+  FileSpreadsheet,
   Upload,
   X,
 } from 'lucide-react'
@@ -21,6 +22,7 @@ import { canManageOrganizationUsers, isSuperAdmin } from '@/lib/roles'
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/clients', label: 'Clients', icon: Users },
+  { to: '/reports', label: 'Reports', icon: FileSpreadsheet },
 ]
 
 interface SidebarProps {

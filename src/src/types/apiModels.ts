@@ -312,3 +312,80 @@ export interface AccessImportResultDto {
   warnings: string[]
 }
 
+export interface BookOfBusinessRowDto {
+  clientId: string
+  firstName?: string | null
+  lastName?: string | null
+  legalName?: string | null
+  primaryPhone?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  postalCode?: string | null
+  emailAddress?: string | null
+  dateOfBirth?: string | null
+  medicareNumber?: string | null
+  medicarePartAEffectiveDate?: string | null
+  medicarePartBEffectiveDate?: string | null
+  hasContactConsent: boolean
+  notes?: string | null
+  medicarePlanName?: string | null
+  medicareCoverageStartDate?: string | null
+  drugPlanName?: string | null
+  drugCoverageStartDate?: string | null
+  secondaryPlanName?: string | null
+  secondaryCoverageStartDate?: string | null
+}
+
+export interface BookOfBusinessReportDto {
+  items: BookOfBusinessRowDto[]
+  truncated: boolean
+}
+
+export interface MailingListRowDto {
+  clientId: string
+  firstName?: string | null
+  lastName?: string | null
+  legalName?: string | null
+  primaryPhone?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  postalCode?: string | null
+  emailAddress?: string | null
+  hasContactConsent: boolean
+  medicarePlanName?: string | null
+  medicareCoverageStartDate?: string | null
+  enrollmentLocation?: string | null
+  enrollmentPlatform?: string | null
+}
+
+export interface MailingListReportDto {
+  items: MailingListRowDto[]
+}
+
+export interface ProductionReportRowDto {
+  planName: string
+  coverageStartDate?: string | null
+  enrollmentCount: number
+}
+
+export interface ProductionReportDto {
+  planYear: number
+  medicare: ProductionReportRowDto[]
+  drug: ProductionReportRowDto[]
+  secondary: ProductionReportRowDto[]
+}
+
+export interface RetentionReportRowDto {
+  firstYear: number
+  totalCount: number
+  stillActiveCount: number
+}
+
+export interface RetentionReportDto {
+  rows: RetentionReportRowDto[]
+}
+
