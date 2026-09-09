@@ -9,6 +9,7 @@ import { ClientsPage } from '@/pages/ClientsPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { EditClientPage } from '@/pages/EditClientPage'
 import { NewClientPage } from '@/pages/NewClientPage'
+import { ReportsPage } from '@/pages/ReportsPage'
 
 export function App() {
   return (
@@ -19,6 +20,7 @@ export function App() {
         <Route path="clients/new" element={<NewClientPage />} />
         <Route path="clients/:id/edit" element={<EditClientPage />} />
         <Route path="clients/:id" element={<ClientDetailPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="admin/users" element={<AdminUsersPage />} />
         <Route path="admin/plan-names" element={<AdminPlanNamesPage />} />
         <Route path="admin/import" element={<AdminImportPage />} />
