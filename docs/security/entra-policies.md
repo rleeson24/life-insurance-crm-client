@@ -43,7 +43,7 @@ How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bice
 
 1. Enable **2FA** on the GitHub account (TOTP or passkey). No shared admin accounts.
 2. Protect **`main`**: no direct pushes, no force pushes, no deleting the branch. Merges go through a pull request.
-3. Required status checks from `.github/workflows/ci.yml`: `secret-scan`, `vulnerability-scan`, `build`.
+3. Required status checks from `.github/workflows/ci.yml`: `secret-scan`, `vulnerability-scan`, `build`, `test`.
 4. Required approving reviews: **0** while this is a solo maintainer; raise to **1** when a second person can review.
 
 Portal: **Settings** → **Rules** → **Rulesets** → target `main`. CLI (after `gh auth login`):
@@ -78,7 +78,8 @@ $payload = @'
         "required_status_checks": [
           { "context": "secret-scan" },
           { "context": "vulnerability-scan" },
-          { "context": "build" }
+          { "context": "build" },
+          { "context": "test" }
         ]
       }
     }
