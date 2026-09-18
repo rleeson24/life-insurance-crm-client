@@ -13,7 +13,7 @@ Do not copy Bicep into this repository. CORS, the API FQDN, and the client origi
 
 ## One-time GitHub setup
 
-1. Deploy infrastructure from the API repo (`deploy-infrastructure.yml` or `scripts/deploy-infra-dev.ps1`).
+1. Deploy infrastructure from the API repo (`deploy-infrastructure.yml` or `scripts/deploy-infra.ps1 -Environment <dev|prod>`).
 2. Copy these outputs from that deployment:
 
 | Output | Where it goes |
