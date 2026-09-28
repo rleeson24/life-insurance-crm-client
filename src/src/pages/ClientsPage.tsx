@@ -44,7 +44,7 @@ export function ClientsPage() {
           <Input
             aria-label="Search clients"
             className="pl-9"
-            placeholder="Search by name, phone, or plan..."
+            placeholder="name, phone and mdi"
             value={search}
             onChange={(event) => {
               setSearch(event.target.value)

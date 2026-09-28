@@ -4,6 +4,7 @@ import {
   formatClientName,
   formatDate,
   formatDateTime,
+  nextJanuaryFirst,
   toDateInputValue,
   toDatetimeLocalValue,
   toIsoFromDatetimeLocal,
@@ -54,6 +55,13 @@ describe('cn', () => {
 })
 
 describe('date input helpers', () => {
+  it('uses this January 1 on January 1 and next year after that', () => {
+    expect(nextJanuaryFirst(new Date(2026, 0, 1))).toBe('2026-01-01')
+    expect(nextJanuaryFirst(new Date(2026, 0, 2))).toBe('2027-01-01')
+    expect(nextJanuaryFirst(new Date(2026, 8, 28))).toBe('2027-01-01')
+    expect(nextJanuaryFirst(new Date(2026, 11, 31))).toBe('2027-01-01')
+  })
+
   it('slices ISO values to yyyy-mm-dd', () => {
     expect(toDateInputValue('2024-03-09T12:00:00.000Z')).toBe('2024-03-09')
     expect(toDateInputValue(undefined)).toBe('')

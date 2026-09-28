@@ -6,7 +6,12 @@ import type {
   CreateSecondaryEnrollmentModel,
   SecondaryEnrollmentDto,
 } from '@/types/apiModels'
-import { toDateInputValue, toDatetimeLocalValue, toIsoFromDatetimeLocal } from '@/lib/format'
+import {
+  nextJanuaryFirst,
+  toDateInputValue,
+  toDatetimeLocalValue,
+  toIsoFromDatetimeLocal,
+} from '@/lib/format'
 import { normalizePlanNameInput } from '@/lib/planNames'
 import { ui } from '@/lib/uiClasses'
 import { usePlanNameField } from '@/components/clients/PlanNameField'
@@ -23,7 +28,7 @@ export function secondaryEnrollmentFormEmpty(): SecondaryEnrollmentFormValues {
   return {
     recordedAtLocal: toDatetimeLocalValue(),
     planOrCarrierName: '',
-    coverageStartDate: '',
+    coverageStartDate: nextJanuaryFirst(),
     isActiveCoverage: true,
     notes: '',
   }
