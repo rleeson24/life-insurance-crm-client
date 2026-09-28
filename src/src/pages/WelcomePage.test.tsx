@@ -53,4 +53,18 @@ describe('WelcomePage', () => {
     await user.click(screen.getByRole('button', { name: /sign out/i }))
     expect(logout).toHaveBeenCalledOnce()
   })
+
+  it('offers sign-in again after the session expires', async () => {
+    vi.mocked(login).mockClear()
+    const user = userEvent.setup()
+    renderWelcome({
+      variant: 'session-expired',
+      signedInAs: 'Jane Doe',
+      signedInEmail: 'jane@contoso.com',
+    })
+
+    expect(screen.getByRole('heading', { name: /your session expired/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /sign in with microsoft/i }))
+    expect(login).toHaveBeenCalledOnce()
+  })
 })

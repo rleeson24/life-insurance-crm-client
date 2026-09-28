@@ -20,7 +20,10 @@ const queryClient = new QueryClient({
 })
 
 async function start(): Promise<void> {
-  await initializeMsal()
+  const ready = await initializeMsal()
+  if (!ready) {
+    return
+  }
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

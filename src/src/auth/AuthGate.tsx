@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/api/me'
 import { ApiError } from '@/api/apiFetch'
 import { classifyAccessError } from '@/auth/accessError'
 import { getAuthDisplayName } from '@/auth/auth'
+import { SessionExpiredError } from '@/auth/sessionExpired'
 import { Spinner } from '@/components/ui/Spinner'
 import { queryKeys } from '@/lib/queryKeys'
 import { ui } from '@/lib/uiClasses'
@@ -28,6 +29,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
     queryFn: ({ signal }) => getCurrentUser({ signal }),
     enabled: isAuthenticated && inProgress === InteractionStatus.None,
     retry: (failureCount, error) => {
+      if (error instanceof SessionExpiredError) {
+        return false
+      }
+
       if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
         return false
       }
