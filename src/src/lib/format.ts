@@ -49,6 +49,15 @@ export function toDateInputValue(value?: string | null): string {
   return value.slice(0, 10)
 }
 
+/** Soonest January 1 that is today or later, as a date-input value. */
+export function nextJanuaryFirst(now = new Date()): string {
+  const year = now.getFullYear()
+  const today = new Date(year, now.getMonth(), now.getDate())
+  const januaryFirstThisYear = new Date(year, 0, 1)
+  const targetYear = today.getTime() > januaryFirstThisYear.getTime() ? year + 1 : year
+  return `${targetYear}-01-01`
+}
+
 export function toDatetimeLocalValue(value?: string | Date | null): string {
   const date = value instanceof Date ? value : value ? new Date(value) : new Date()
   if (Number.isNaN(date.getTime())) return ''

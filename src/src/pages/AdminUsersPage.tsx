@@ -185,21 +185,23 @@ export function AdminUsersPage() {
               </select>
             </label>
           ) : null}
-          <Button
-            type="button"
-            className="w-full sm:w-auto"
-            onClick={() => {
-              setForm({
-                ...emptyForm,
-                tenantId: tenantFilter,
-              })
-              setErrorMessage(null)
-              setFormOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add user
-          </Button>
+          {platformOperator ? (
+            <Button
+              type="button"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setForm({
+                  ...emptyForm,
+                  tenantId: tenantFilter,
+                })
+                setErrorMessage(null)
+                setFormOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add user
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -228,11 +230,17 @@ export function AdminUsersPage() {
         <Card>
           <EmptyState
             title="No users in this organization"
-            description="Add an Entra user by their Object ID."
+            description={
+              platformOperator
+                ? 'Add an Entra user by their Object ID.'
+                : 'No users are mapped to this organization yet.'
+            }
             action={
-              <Button type="button" onClick={() => setFormOpen(true)}>
-                Add user
-              </Button>
+              platformOperator ? (
+                <Button type="button" onClick={() => setFormOpen(true)}>
+                  Add user
+                </Button>
+              ) : undefined
             }
           />
         </Card>

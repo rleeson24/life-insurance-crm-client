@@ -26,6 +26,11 @@
   background-color: #020617;
 }
 
+.dark input[type='date'],
+.dark input[type='datetime-local'] {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
