@@ -76,6 +76,10 @@ const denialCopy: Record<
       "We couldn't load your workspace. Check that the API is running and try again.",
     showRetry: true,
   },
+  'session-expired': {
+    title: 'Your session expired',
+    description: 'Sign in again with your work Microsoft account.',
+  },
 }
 
 export function WelcomePage({
@@ -163,6 +167,12 @@ export function WelcomePage({
                   </p>
                 ) : null}
                 <div className="mt-6 flex flex-col gap-3">
+                  {variant === 'session-expired' ? (
+                    <Button className="w-full" onClick={() => void login()}>
+                      <LogIn className="h-4 w-4" aria-hidden="true" />
+                      Sign in with Microsoft
+                    </Button>
+                  ) : null}
                   {denial?.showRetry && onRetry ? (
                     <Button className="w-full" onClick={onRetry}>
                       Try again
@@ -170,7 +180,9 @@ export function WelcomePage({
                   ) : null}
                   <Button
                     className="w-full"
-                    variant={denial?.showRetry ? 'secondary' : 'primary'}
+                    variant={
+                      denial?.showRetry || variant === 'session-expired' ? 'secondary' : 'primary'
+                    }
                     onClick={() => void logout()}
                   >
                     <LogOut className="h-4 w-4" aria-hidden="true" />

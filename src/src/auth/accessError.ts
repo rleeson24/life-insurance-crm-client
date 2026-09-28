@@ -1,4 +1,5 @@
 import { ApiError } from '@/api/apiFetch'
+import { SessionExpiredError } from '@/auth/sessionExpired'
 
 export type AccessDenialReason =
   | 'no-account'
@@ -6,9 +7,14 @@ export type AccessDenialReason =
   | 'inactive-org'
   | 'invalid-identity'
   | 'forbidden'
+  | 'session-expired'
   | 'unavailable'
 
 export function classifyAccessError(error: unknown): AccessDenialReason {
+  if (error instanceof SessionExpiredError) {
+    return 'session-expired'
+  }
+
   if (!(error instanceof ApiError)) {
     return 'unavailable'
   }

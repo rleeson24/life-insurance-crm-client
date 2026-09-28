@@ -1,8 +1,10 @@
 import { InteractionStatus } from '@azure/msal-browser'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/api/apiFetch'
 import { AuthGate } from '@/auth/AuthGate'
+import { SessionExpiredError } from '@/auth/sessionExpired'
 import { currentUser } from '@/test/fixtures'
 import { renderWithProviders } from '@/test/render'
 
@@ -31,6 +33,7 @@ vi.mock('@/auth/auth', () => ({
 }))
 
 import { getCurrentUser } from '@/api/me'
+import { login } from '@/auth/auth'
 
 describe('AuthGate', () => {
   beforeEach(() => {
@@ -106,5 +109,24 @@ describe('AuthGate', () => {
     expect(
       await screen.findByRole('heading', { name: /don't have a brokerbook account/i }),
     ).toBeInTheDocument()
+  })
+
+  it('asks for a new sign-in when the Microsoft session expired', async () => {
+    const user = userEvent.setup()
+    authState.isAuthenticated = true
+    authState.accounts = [{ name: 'Jane Doe', username: 'jane@contoso.com' }]
+    vi.mocked(getCurrentUser).mockRejectedValue(new SessionExpiredError())
+
+    renderWithProviders(
+      <AuthGate>
+        <p>Workspace</p>
+      </AuthGate>,
+    )
+
+    expect(await screen.findByRole('heading', { name: /your session expired/i })).toBeInTheDocument()
+    expect(screen.queryByText('Workspace')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /sign in with microsoft/i }))
+    expect(login).toHaveBeenCalledOnce()
   })
 })

@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { ApiError } from '@/api/apiFetch'
 import { classifyAccessError } from '@/auth/accessError'
+import { SessionExpiredError } from '@/auth/sessionExpired'
 
 function forbidden(detail: string) {
   return new ApiError(detail, 403, { detail, status: 403 })
 }
 
 describe('classifyAccessError', () => {
+  it('returns session-expired when silent renewal needs a new sign-in', () => {
+    expect(classifyAccessError(new SessionExpiredError())).toBe('session-expired')
+  })
+
   it('returns unavailable for non-API and non-403 errors', () => {
     expect(classifyAccessError(new Error('network'))).toBe('unavailable')
     expect(classifyAccessError(new ApiError('boom', 500))).toBe('unavailable')
