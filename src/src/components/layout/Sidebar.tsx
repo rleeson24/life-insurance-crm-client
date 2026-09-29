@@ -9,6 +9,7 @@ import {
   UserCog,
   Building2,
   FileSpreadsheet,
+  ShieldAlert,
   Upload,
   X,
 } from 'lucide-react'
@@ -45,11 +46,11 @@ export function Sidebar({ className, onNavigate, onClose }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col border-r border-slate-800 bg-slate-950 text-slate-100',
+        'flex h-full min-h-0 shrink-0 flex-col overflow-hidden border-r border-slate-800 bg-slate-950 text-slate-100',
         className,
       )}
     >
-      <div className="relative overflow-hidden border-b border-slate-800 px-5 py-5">
+      <div className="relative shrink-0 overflow-hidden border-b border-slate-800 px-5 py-5">
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/25 via-transparent to-transparent"
           aria-hidden="true"
@@ -77,7 +78,7 @@ export function Sidebar({ className, onNavigate, onClose }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Workspace">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3" aria-label="Workspace">
         {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -165,9 +166,26 @@ export function Sidebar({ className, onNavigate, onClose }: SidebarProps) {
             Organizations
           </NavLink>
         ) : null}
+        {platformOperator ? (
+          <NavLink
+            to="/admin/security-events"
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-indigo-500/15 text-indigo-200'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white',
+              )
+            }
+          >
+            <ShieldAlert className="h-4 w-4" />
+            Security events
+          </NavLink>
+        ) : null}
       </nav>
 
-      <div className="border-t border-slate-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="shrink-0 border-t border-slate-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <p className="truncate text-xs font-medium text-slate-300">{displayName}</p>
         <button
           type="button"

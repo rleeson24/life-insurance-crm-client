@@ -38,9 +38,20 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     title: 'Organizations',
     subtitle: 'Create CRM tenants and mark them inactive when they leave',
   },
+  '/admin/security-events': {
+    title: 'Security events',
+    subtitle: 'Sign-in, access, and export activity across organizations',
+  },
 }
 
 function getPageMeta(pathname: string) {
+  if (pathname.startsWith('/admin/security-events/')) {
+    return {
+      title: 'Security event',
+      subtitle: 'Details recorded for one auth security event',
+    }
+  }
+
   if (pathname.endsWith('/edit') && pathname.startsWith('/clients/')) {
     return {
       title: 'Edit Client',
@@ -80,10 +91,10 @@ export function AppShell() {
   }, [])
 
   return (
-    <div className={`flex min-h-screen ${ui.page.background}`}>
-      <Sidebar className="hidden w-64 lg:flex" />
+    <div className={`flex h-dvh overflow-hidden ${ui.page.background}`}>
+      <Sidebar className="hidden h-full w-64 lg:flex" />
       <MobileNav open={mobileNavOpen} onClose={closeMobileNav} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Header
           title={meta.title}
           subtitle={meta.subtitle}
@@ -91,7 +102,7 @@ export function AppShell() {
           menuButtonRef={menuButtonRef}
           onMenuClick={() => setOpenForPath(pathname)}
         />
-        <main className={ui.page.main}>
+        <main className={`${ui.page.main} min-h-0 overflow-y-auto`}>
           <Outlet />
         </main>
       </div>

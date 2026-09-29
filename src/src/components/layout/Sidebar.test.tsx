@@ -37,6 +37,7 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: 'Reports' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Users' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Organizations' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Security events' })).not.toBeInTheDocument()
     expect(screen.getByText('Northwind')).toBeInTheDocument()
   })
 
@@ -49,6 +50,7 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: 'Plan names' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Import' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Organizations' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Security events' })).not.toBeInTheDocument()
   })
 
   it('shows the organizations link for super admins', async () => {
@@ -57,5 +59,9 @@ describe('Sidebar', () => {
     renderWithProviders(<Sidebar />)
 
     expect(await screen.findByRole('link', { name: 'Organizations' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Security events' })).toHaveAttribute(
+      'href',
+      '/admin/security-events',
+    )
   })
 })

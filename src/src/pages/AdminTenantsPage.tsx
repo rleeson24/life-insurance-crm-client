@@ -172,6 +172,7 @@ export function AdminTenantsPage() {
                   <tr>
                     <th className="px-3 py-3 font-medium">Organization</th>
                     <th className="px-3 py-3 font-medium">Tenant ID</th>
+                    <th className="px-3 py-3 font-medium">Clients</th>
                     <th className="px-3 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
@@ -244,6 +245,9 @@ function TenantCard({
       <p className={`mt-2 break-all font-mono text-xs ${ui.text.secondary}`}>
         {tenant.tenantId}
       </p>
+      <p className={`mt-2 text-sm ${ui.text.secondary}`}>
+        {formatClientCount(tenant.clientCount)}
+      </p>
       <div className="mt-3">
         <TenantStatusSelect
           tenant={tenant}
@@ -272,6 +276,9 @@ function TenantRow({
       <td className={`px-3 py-3 font-mono text-xs ${ui.text.secondary}`}>
         {tenant.tenantId}
       </td>
+      <td className={`px-3 py-3 tabular-nums ${ui.text.secondary}`}>
+        {tenant.clientCount.toLocaleString()}
+      </td>
       <td className="px-3 py-3">
         <TenantStatusSelect
           tenant={tenant}
@@ -281,6 +288,11 @@ function TenantRow({
       </td>
     </tr>
   )
+}
+
+function formatClientCount(count: number) {
+  const label = count === 1 ? 'client' : 'clients'
+  return `${count.toLocaleString()} ${label}`
 }
 
 function TenantStatusSelect({

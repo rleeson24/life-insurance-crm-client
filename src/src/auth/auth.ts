@@ -5,6 +5,7 @@ import {
   type AccountInfo,
 } from '@azure/msal-browser'
 import { broadcastResponseToMainFrame } from '@azure/msal-browser/redirect-bridge'
+import { recordLoginFailed, recordLoginSucceeded, recordLogout } from '@/api/authSession'
 import { apiScopes, loginRequest, msalConfig } from '@/auth/msalConfig'
 import { SessionExpiredError } from '@/auth/sessionExpired'
 
@@ -47,11 +48,27 @@ export async function initializeMsal(): Promise<boolean> {
   }
 
   await msalInstance.initialize()
-  const redirectResult = await msalInstance.handleRedirectPromise()
+  let redirectResult: Awaited<ReturnType<PublicClientApplication['handleRedirectPromise']>>
+  try {
+    redirectResult = await msalInstance.handleRedirectPromise()
+  } catch (error) {
+    await reportLoginFailed(error)
+    return true
+  }
+
   const account = redirectResult?.account ?? firstAccount()
   if (account) {
     msalInstance.setActiveAccount(account)
   }
+
+  if (redirectResult?.account) {
+    try {
+      await recordLoginSucceeded()
+    } catch {
+      // A missed audit row should not block the signed-in workspace.
+    }
+  }
+
   return true
 }
 
@@ -94,11 +111,36 @@ export function login(): Promise<void> {
   return msalInstance.loginRedirect(loginRequest)
 }
 
-export function logout(): Promise<void> {
+export async function logout(): Promise<void> {
+  try {
+    await recordLogout()
+  } catch {
+    // Sign-out still proceeds when the audit call fails.
+  }
+
   const account = firstAccount()
-  return msalInstance.logoutRedirect({
+  await msalInstance.logoutRedirect({
     account: account ?? undefined,
   })
+}
+
+async function reportLoginFailed(error: unknown) {
+  try {
+    await recordLoginFailed(loginFailureReason(error))
+  } catch {
+    // The welcome page is still the right place to land.
+  }
+}
+
+function loginFailureReason(error: unknown) {
+  if (error && typeof error === 'object' && 'errorCode' in error) {
+    const code = error.errorCode
+    if (typeof code === 'string' && /^[A-Za-z0-9_]{1,64}$/.test(code)) {
+      return code
+    }
+  }
+
+  return 'login_failed'
 }
 
 export function getAuthDisplayName(): string {
