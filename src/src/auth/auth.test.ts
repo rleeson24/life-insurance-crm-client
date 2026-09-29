@@ -39,7 +39,14 @@ vi.mock('@azure/msal-browser/redirect-bridge', () => ({
   broadcastResponseToMainFrame: bridge.broadcastResponseToMainFrame,
 }))
 
-import { getAccessToken, initializeMsal } from '@/auth/auth'
+vi.mock('@/api/authSession', () => ({
+  recordLoginSucceeded: vi.fn(),
+  recordLogout: vi.fn(),
+  recordLoginFailed: vi.fn(),
+}))
+
+import { recordLoginFailed, recordLoginSucceeded, recordLogout } from '@/api/authSession'
+import { getAccessToken, initializeMsal, logout } from '@/auth/auth'
 import { SessionExpiredError } from '@/auth/sessionExpired'
 
 const account = {
@@ -105,6 +112,42 @@ describe('initializeMsal', () => {
     msal.handleRedirectPromise.mockReset()
     msal.getActiveAccount.mockReset()
     msal.getAllAccounts.mockReset()
+    msal.logoutRedirect.mockReset()
+    vi.mocked(recordLoginSucceeded).mockReset()
+    vi.mocked(recordLogout).mockReset()
+    vi.mocked(recordLoginFailed).mockReset()
+  })
+
+  it('records a successful login when Entra redirects back with an account', async () => {
+    msal.handleRedirectPromise.mockResolvedValue({ account })
+    vi.mocked(recordLoginSucceeded).mockResolvedValue(undefined)
+
+    await expect(initializeMsal()).resolves.toBe(true)
+
+    expect(msal.setActiveAccount).toHaveBeenCalledWith(account)
+    expect(recordLoginSucceeded).toHaveBeenCalledOnce()
+    expect(recordLoginFailed).not.toHaveBeenCalled()
+  })
+
+  it('records a failed login when the Entra redirect returns an error', async () => {
+    msal.handleRedirectPromise.mockRejectedValue(new BrowserAuthError('access_denied', 'corr'))
+    vi.mocked(recordLoginFailed).mockResolvedValue(undefined)
+
+    await expect(initializeMsal()).resolves.toBe(true)
+
+    expect(recordLoginFailed).toHaveBeenCalledWith('access_denied')
+    expect(recordLoginSucceeded).not.toHaveBeenCalled()
+  })
+
+  it('still signs out when the logout audit call fails', async () => {
+    msal.getActiveAccount.mockReturnValue(account)
+    msal.logoutRedirect.mockResolvedValue(undefined)
+    vi.mocked(recordLogout).mockRejectedValue(new Error('offline'))
+
+    await logout()
+
+    expect(recordLogout).toHaveBeenCalledOnce()
+    expect(msal.logoutRedirect).toHaveBeenCalledOnce()
   })
 
   it('relays the auth response and skips startup inside the renewal frame', async () => {

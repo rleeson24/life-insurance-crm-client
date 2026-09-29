@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { AdminImportPage } from '@/pages/AdminImportPage'
 import { AdminPlanNamesPage } from '@/pages/AdminPlanNamesPage'
+import { AdminSecurityEventDetailPage } from '@/pages/AdminSecurityEventDetailPage'
+import { AdminSecurityEventsPage } from '@/pages/AdminSecurityEventsPage'
 import { AdminTenantsPage } from '@/pages/AdminTenantsPage'
 import { AdminUsersPage } from '@/pages/AdminUsersPage'
 import { ClientDetailPage } from '@/pages/ClientDetailPage'
@@ -25,6 +27,8 @@ export function App() {
         <Route path="admin/plan-names" element={<AdminPlanNamesPage />} />
         <Route path="admin/import" element={<AdminImportPage />} />
         <Route path="admin/tenants" element={<AdminTenantsPage />} />
+        <Route path="admin/security-events" element={<AdminSecurityEventsPage />} />
+        <Route path="admin/security-events/:eventId" element={<AdminSecurityEventDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

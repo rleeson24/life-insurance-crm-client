@@ -245,8 +245,40 @@ export interface TenantDto {
   tenantId: string
   name: string
   isActive: boolean
+  clientCount: number
   createdAt: string
   updatedAt: string
+}
+
+export interface AuthSecurityEventDto {
+  authSecurityEventId: string
+  tenantId?: string | null
+  tenantName?: string | null
+  occurredAt: string
+  eventType: string
+  userId?: string | null
+  userEmail?: string | null
+  success: boolean
+  failureReason?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  correlationId?: string | null
+  resource?: string | null
+}
+
+export interface ListAuthSecurityEventsParams {
+  search?: string
+  eventType?: string
+  success?: boolean
+  page?: number
+  pageSize?: number
+}
+
+export interface ListAuthSecurityEventsResult {
+  items: AuthSecurityEventDto[]
+  totalCount: number
+  page: number
+  pageSize: number
 }
 
 export interface CreateTenantModel {

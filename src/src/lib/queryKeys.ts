@@ -5,6 +5,9 @@ export const queryKeys = {
   activeClientCount: ['active-client-count'] as const,
   me: ['me'] as const,
   tenants: ['tenants'] as const,
+  authSecurityEvents: (params: Record<string, unknown>) =>
+    ['auth-security-events', params] as const,
+  authSecurityEvent: (eventId: string) => ['auth-security-event', eventId] as const,
   organizationUsers: (tenantId?: string) =>
     ['organization-users', tenantId ?? 'all'] as const,
   planNames: (kind: string, year: number) => ['plan-names', kind, year] as const,
