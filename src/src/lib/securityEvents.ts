@@ -10,6 +10,20 @@ export const securityEventTypes = [
   'Unauthorized',
   'RateLimitExceeded',
   'ReportExported',
+  'ReportViewed',
+  'ClientListed',
+  'ClientViewed',
+  'ClientDetailViewed',
+  'EnrollmentListed',
+  'InteractionListed',
+  'FollowUpsListed',
+  'DataImported',
+  'ClientUpdated',
+  'ClientDeleted',
+  'EnrollmentDeleted',
+  'InteractionDeleted',
+  'OrganizationUserChanged',
+  'TenantChanged',
 ] as const
 
 const eventTypeLabels: Record<string, string> = {
@@ -24,6 +38,20 @@ const eventTypeLabels: Record<string, string> = {
   Unauthorized: 'Unauthorized',
   RateLimitExceeded: 'Rate limit exceeded',
   ReportExported: 'Report exported',
+  ReportViewed: 'Report viewed',
+  ClientListed: 'Client list viewed',
+  ClientViewed: 'Client viewed',
+  ClientDetailViewed: 'Client detail viewed',
+  EnrollmentListed: 'Enrollments viewed',
+  InteractionListed: 'Interactions viewed',
+  FollowUpsListed: 'Follow-ups viewed',
+  DataImported: 'Data imported',
+  ClientUpdated: 'Client updated',
+  ClientDeleted: 'Client deleted',
+  EnrollmentDeleted: 'Enrollment deleted',
+  InteractionDeleted: 'Interaction deleted',
+  OrganizationUserChanged: 'User access changed',
+  TenantChanged: 'Organization access changed',
 }
 
 export function formatSecurityEventType(eventType: string) {

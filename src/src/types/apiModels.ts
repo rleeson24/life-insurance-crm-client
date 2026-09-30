@@ -264,6 +264,10 @@ export interface AuthSecurityEventDto {
   userAgent?: string | null
   correlationId?: string | null
   resource?: string | null
+  httpStatus?: number | null
+  resultCount?: number | null
+  targetId?: string | null
+  detail?: string | null
 }
 
 export interface ListAuthSecurityEventsParams {

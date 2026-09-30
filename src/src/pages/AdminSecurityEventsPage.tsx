@@ -204,6 +204,7 @@ function SecurityEventCard({ securityEvent }: { securityEvent: AuthSecurityEvent
             {securityEvent.userEmail || 'Unknown user'}
             {' · '}
             {securityEvent.tenantName?.trim() || 'No organization'}
+            {securityEvent.resultCount == null ? '' : ` · ${securityEvent.resultCount} records`}
           </p>
         </div>
         <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />

@@ -82,6 +82,16 @@ function SecurityEventDetails({ securityEvent }: { securityEvent: AuthSecurityEv
         <Detail label="Tenant ID" value={securityEvent.tenantId || '—'} mono />
         <Detail label="IP address" value={securityEvent.ipAddress || '—'} />
         <Detail label="Resource" value={securityEvent.resource || '—'} />
+        <Detail label="Target ID" value={securityEvent.targetId || '—'} mono />
+        <Detail
+          label="Records"
+          value={securityEvent.resultCount == null ? '—' : String(securityEvent.resultCount)}
+        />
+        <Detail
+          label="HTTP status"
+          value={securityEvent.httpStatus == null ? '—' : String(securityEvent.httpStatus)}
+        />
+        <Detail label="Detail" value={securityEvent.detail || '—'} wide />
         <Detail label="Correlation ID" value={securityEvent.correlationId || '—'} mono />
         <Detail label="Failure reason" value={securityEvent.failureReason || '—'} wide />
         <Detail label="User agent" value={securityEvent.userAgent || '—'} wide />
