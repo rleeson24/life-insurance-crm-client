@@ -22,7 +22,7 @@ Do not copy Bicep into this repository. CORS, the API FQDN, and the client origi
 | Tenant ID | `AZURE_TENANT_ID` |
 | Subscription ID | `AZURE_SUBSCRIPTION_ID` |
 
-Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity is Contributor on the resource group; the client identity can only update the Static Web App and read the API Container App FQDN.
+Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity has **BrokerBook GitHub Deployer** on the resource group (it cannot delete SQL, backups, logs, or locks, or export the database). The client identity can only update the Static Web App and read the API Container App FQDN.
 
 3. Create GitHub Environments `dev` and `prod` in this repository (names must match the Bicep `environment` parameter).
 4. After the first infra deploy, add the Bicep output `clientRedirectUri` (for example `https://<hostname>.azurestaticapps.net/`) as an Entra **SPA** redirect URI on `BrokerBookCRM-SPA`. See [entra-policies.md](entra-policies.md).
