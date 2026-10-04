@@ -1,13 +1,13 @@
 # Azure client deploy
 
-The **BrokerBook API** repo owns the Bicep platform (`infra/`). This repo only publishes the Vite SPA into the Static Web App that infra already created.
+The **BrokerBook API** repo owns the Bicep platform (`infra/`). This repo builds the Vite SPA into an nginx image and deploys it to the web Container App that infra already created.
 
 ## Split of responsibility
 
 | Repo | What it does |
 |------|----------------|
-| BrokerBook API | Deploys Bicep (SQL, Key Vault, ACR, Container Apps, Static Web App, OIDC). Deploys the API container image. |
-| BrokerBook client (this repo) | `npm run build` and uploads `dist` to Azure Static Web Apps. |
+| BrokerBook API | Deploys Bicep (SQL, Key Vault, ACR, Container Apps for the API and the web UI, OIDC). Deploys the API container image. |
+| BrokerBook client (this repo) | Builds `src/Dockerfile` and updates the web Container App image. |
 
 Do not copy Bicep into this repository. CORS, the API FQDN, and the client origin are wired in the API infra stack.
 
@@ -22,10 +22,10 @@ Do not copy Bicep into this repository. CORS, the API FQDN, and the client origi
 | Tenant ID | `AZURE_TENANT_ID` |
 | Subscription ID | `AZURE_SUBSCRIPTION_ID` |
 
-Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity has **BrokerBook GitHub Deployer** on the resource group (it cannot delete SQL, backups, logs, or locks, or export the database). The client identity can only update the Static Web App and read the API Container App FQDN.
+Use a **different** `AZURE_CLIENT_ID` than the API repo. The API identity has **BrokerBook GitHub Deployer** on the resource group (it cannot delete SQL, backups, logs, or locks, or export the database). The client identity can push to ACR, update the web Container App, and read the API Container App FQDN.
 
 3. Create GitHub Environments `dev` and `prod` in this repository (names must match the Bicep `environment` parameter).
-4. After the first infra deploy, add the Bicep output `clientRedirectUri` (for example `https://<hostname>.azurestaticapps.net/`) as an Entra **SPA** redirect URI on `BrokerBookCRM-SPA`. See [entra-policies.md](entra-policies.md).
+4. After the first infra deploy, add the Bicep output `clientRedirectUri` (for example `https://bbcrm-dev-web.<env>.azurecontainerapps.io/`) as an Entra **SPA** redirect URI on `BrokerBookCRM-SPA`. See [entra-policies.md](entra-policies.md).
 5. Set GitHub **environment variables** (not secrets — these are public in the SPA bundle) on `dev` and `prod`:
 
 | Variable | Value |
@@ -44,8 +44,8 @@ Run **Deploy client** (`deploy-client.yml`) with:
 The workflow:
 
 1. Signs in with OIDC (no long-lived Azure secret).
-2. Resolves the Static Web App and API Container App in that resource group.
-3. Builds with `VITE_API_BASE_URL` set to `https://<api-fqdn>` and the Entra SPA variables above.
-4. Fetches a short-lived SWA deployment token from Azure and uploads `src/dist`.
+2. Reads the web Container App's registry and the API Container App FQDN.
+3. Builds `src/Dockerfile` with `VITE_API_BASE_URL` set to `https://<api-fqdn>` and the Entra SPA variables above.
+4. Pushes the image to ACR by digest and updates the web Container App.
 
 The SPA origin is already in API `Cors:AllowedOrigins` from Bicep. MSAL uses that origin as the redirect URI.
