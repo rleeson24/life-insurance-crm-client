@@ -37,7 +37,7 @@ Run those commands in the BrokerBook API repository.
 
 3. Insert your Entra **Object ID** into `OrganizationUsers.UserId` using `scripts/provision-organization-user.ps1 -Role SuperAdmin` in the API repo (JWT `oid` must match). Do not use `NameIdentifier` / `sub`. After that, SuperAdmin creates organizations and maps users from the app; organization Admins manage users in their own tenant only.
 
-How to deploy the SPA into the Azure Static Web App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
+How to deploy the SPA to the web Container App provisioned by API-repo Bicep: [azure-deploy.md](azure-deploy.md).
 
 ## GitHub (this repository)
 
