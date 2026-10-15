@@ -1,31 +1,8 @@
-import { Buffer } from 'buffer'
-import type MDBReader from 'mdb-reader'
+import { applyImportMapping, suggestImportMapping } from '@/lib/importMapping'
+import { readWorkbookFile, WorkbookReadError } from '@/lib/workbook'
 import type { AccessImportModel, AccessRow } from '@/types/apiModels'
 
-function ensureNodeShims() {
-  const globalWithShims = globalThis as typeof globalThis & {
-    Buffer?: typeof Buffer
-    process?: {
-      env: { NODE_ENV: string }
-      browser: boolean
-      version: string
-      nextTick: (cb: () => void) => void
-    }
-  }
-  globalWithShims.Buffer = Buffer
-  if (!globalWithShims.process) {
-    globalWithShims.process = {
-      env: { NODE_ENV: import.meta.env.MODE },
-      browser: true,
-      version: 'v18.0.0',
-      nextTick: (cb) => queueMicrotask(cb),
-    }
-  }
-}
-
 const REQUIRED_TABLES = ['ClientsT', 'MEDEnrollmentT', 'OtherEnrollmentT', '_contactT'] as const
-const CREDENTIAL_KEYS = new Set(['username', 'password'])
-const MAX_FILE_BYTES = 20 * 1024 * 1024
 const MIN_PLAN_YEAR = 1990
 const MAX_PLAN_YEAR = 2100
 
@@ -51,16 +28,19 @@ export interface AccessImportPreview {
 }
 
 export async function parseAccessDatabaseFile(file: File): Promise<AccessImportPreview> {
-  if (file.size > MAX_FILE_BYTES) {
-    throw new AccessParseError('The Access file is larger than 20 MB.')
+  let workbook
+  try {
+    workbook = await readWorkbookFile(file)
+  } catch (error) {
+    if (error instanceof WorkbookReadError) {
+      throw new AccessParseError(error.message)
+    }
+    throw error
   }
 
-  ensureNodeShims()
-  const { default: AccessReader } = await import('mdb-reader')
-  const reader = new AccessReader(Buffer.from(await file.arrayBuffer()))
-  const tableNames = reader.getTableNames()
+  const tableNames = workbook.tables.map((table) => table.name)
   const missing = REQUIRED_TABLES.filter(
-    (required) => !findTableName(tableNames, required),
+    (required) => !tableNames.some((name) => normalizeKey(name) === normalizeKey(required)),
   )
   if (missing.length > 0) {
     throw new AccessParseError(
@@ -68,63 +48,12 @@ export async function parseAccessDatabaseFile(file: File): Promise<AccessImportP
     )
   }
 
-  const clients = readTable(reader, tableNames, 'ClientsT')
-  const medEnrollments = readTable(reader, tableNames, 'MEDEnrollmentT')
-  const otherEnrollments = readTable(reader, tableNames, 'OtherEnrollmentT')
-  const contacts = readTable(reader, tableNames, '_contactT')
-  const payload: AccessImportModel = {
-    clients,
-    medEnrollments,
-    otherEnrollments,
-    contacts,
-  }
-
-  return { fileName: file.name, payload, ...previewCounts(payload) }
+  const suggestion = suggestImportMapping(workbook)
+  const payload = applyImportMapping(workbook, suggestion.profile)
+  return { fileName: file.name, payload, ...summarizeAccessImport(payload) }
 }
 
-function readTable(
-  reader: MDBReader,
-  tableNames: string[],
-  requiredName: string,
-): AccessRow[] {
-  const name = findTableName(tableNames, requiredName)
-  if (!name) {
-    return []
-  }
-
-  return reader.getTable(name).getData().map(sanitizeRow)
-}
-
-function findTableName(tableNames: string[], requiredName: string): string | undefined {
-  const normalized = normalizeKey(requiredName)
-  return tableNames.find((name) => normalizeKey(name) === normalized)
-}
-
-function sanitizeRow(row: Record<string, unknown>): AccessRow {
-  const sanitized: AccessRow = {}
-  for (const [key, value] of Object.entries(row)) {
-    if (CREDENTIAL_KEYS.has(normalizeKey(key))) {
-      continue
-    }
-    sanitized[key] = serializeValue(value)
-  }
-  return sanitized
-}
-
-function serializeValue(value: unknown): unknown {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toISOString()
-  }
-  if (typeof value === 'bigint') {
-    return Number(value)
-  }
-  if (typeof value === 'object' && value !== null) {
-    return String(value)
-  }
-  return value ?? null
-}
-
-function previewCounts(payload: AccessImportModel) {
+export function summarizeAccessImport(payload: AccessImportModel) {
   const warnings: string[] = []
   const clientIds = new Set<number>()
   let clients = 0

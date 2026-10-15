@@ -13,6 +13,7 @@ export const queryKeys = {
   planNames: (kind: string, year: number) => ['plan-names', kind, year] as const,
   planNameLookup: (kind: string, fromYear: number, toYear: number) =>
     ['plan-name-lookup', kind, fromYear, toYear] as const,
+  importProfiles: ['import-profiles'] as const,
   bookOfBusinessReport: ['reports', 'book'] as const,
   mailingListReport: ['reports', 'mailing'] as const,
   productionReport: (planYear: number) => ['reports', 'production', planYear] as const,

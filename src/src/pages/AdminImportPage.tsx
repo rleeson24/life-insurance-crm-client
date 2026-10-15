@@ -1,26 +1,40 @@
-import { useRef, useState, type ChangeEvent } from 'react'
+import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Upload } from 'lucide-react'
 import { getCurrentUser } from '@/api/me'
-import { importAccessDatabase } from '@/api/imports'
+import {
+  deleteImportMappingProfile,
+  importAccessDatabase,
+  listImportMappingProfiles,
+  saveImportMappingProfile,
+} from '@/api/imports'
 import { ApiError } from '@/api/apiFetch'
+import { ImportMappingCard } from '@/components/import/ImportMappingCard'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { summarizeAccessImport, type AccessImportPreview } from '@/lib/accessImport'
 import {
-  AccessParseError,
-  parseAccessDatabaseFile,
-  type AccessImportPreview,
-} from '@/lib/accessImport'
+  applyImportMapping,
+  bestFittingProfile,
+  overlaySavedProfile,
+  suggestImportMapping,
+  type ImportMappingProfile,
+} from '@/lib/importMapping'
+import { readWorkbookFile, WorkbookReadError, type SourceWorkbook } from '@/lib/workbook'
 import { queryKeys } from '@/lib/queryKeys'
 import { canManageOrganizationUsers } from '@/lib/roles'
 import { ui } from '@/lib/uiClasses'
+import type { ImportMappingProfileDto } from '@/types/apiModels'
 
 export function AdminImportPage() {
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [preview, setPreview] = useState<AccessImportPreview | null>(null)
+  const [workbook, setWorkbook] = useState<SourceWorkbook | null>(null)
+  const [draft, setDraft] = useState<ImportMappingProfile | null>(null)
+  const [selectedProfileId, setSelectedProfileId] = useState('')
+  const [stage, setStage] = useState<'map' | 'preview'>('map')
   const [parseError, setParseError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [parsing, setParsing] = useState(false)
@@ -30,6 +44,11 @@ export function AdminImportPage() {
     queryFn: ({ signal }) => getCurrentUser({ signal }),
   })
   const canManage = canManageOrganizationUsers(meQuery.data?.role)
+  const profilesQuery = useQuery({
+    queryKey: queryKeys.importProfiles,
+    queryFn: ({ signal }) => listImportMappingProfiles({ signal }),
+    enabled: canManage,
+  })
 
   const importMutation = useMutation({
     mutationFn: (current: AccessImportPreview) =>
@@ -46,10 +65,24 @@ export function AdminImportPage() {
       setSuccessMessage(
         `Imported ${result.clientsInserted} clients, ${result.majorMedicalEnrollmentsInserted} Medicare plans, ${result.drugPlanEnrollmentsInserted} drug plans, ${result.secondaryEnrollmentsInserted} secondary plans, ${result.interactionsInserted} contacts, and ${result.medicarePlanNamesInserted + result.drugPlanNamesInserted + result.secondaryPlanNamesInserted} unique plan names.`,
       )
-      setPreview(null)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      clearFile()
+    },
+  })
+
+  const saveMutation = useMutation({
+    mutationFn: (profile: ImportMappingProfile) => saveImportMappingProfile(profile),
+    onSuccess: async (saved) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.importProfiles })
+      setSelectedProfileId(saved.importMappingProfileId)
+      setDraft(toProfile(saved))
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (profileId: string) => deleteImportMappingProfile(profileId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.importProfiles })
+      setSelectedProfileId('')
     },
   })
 
@@ -57,28 +90,78 @@ export function AdminImportPage() {
     return <Navigate to="/" replace />
   }
 
+  const preview = useMemo(() => {
+    if (!workbook || !draft || stage !== 'preview') return null
+    const payload = applyImportMapping(workbook, draft)
+    return {
+      fileName: workbook.fileName,
+      payload,
+      ...summarizeAccessImport(payload),
+    }
+  }, [workbook, draft, stage])
+
+  function clearFile() {
+    setWorkbook(null)
+    setDraft(null)
+    setSelectedProfileId('')
+    setStage('map')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     setSuccessMessage(null)
     setParseError(null)
-    setPreview(null)
+    setWorkbook(null)
+    setDraft(null)
+    setSelectedProfileId('')
+    setStage('map')
     importMutation.reset()
-    if (!file) {
-      return
-    }
+    saveMutation.reset()
+    if (!file) return
 
     setParsing(true)
     try {
-      setPreview(await parseAccessDatabaseFile(file))
+      const loaded = await readWorkbookFile(file)
+      let saved: ImportMappingProfileDto[] = profilesQuery.data ?? []
+      if (!profilesQuery.data) {
+        try {
+          saved = await queryClient.fetchQuery({
+            queryKey: queryKeys.importProfiles,
+            queryFn: () => listImportMappingProfiles(),
+          })
+        } catch {
+          saved = []
+        }
+      }
+      const match = bestFittingProfile(loaded, saved.map(toProfileWithId))
+      const suggestion = suggestImportMapping(loaded)
+      const next = match?.profile ?? suggestion.profile
+      setWorkbook(loaded)
+      setDraft(next)
+      setSelectedProfileId(match?.importMappingProfileId ?? '')
+      setStage(match || suggestion.confidence === 'exact' ? 'preview' : 'map')
     } catch (error) {
       setParseError(
-        error instanceof AccessParseError
+        error instanceof WorkbookReadError
           ? error.message
-          : 'Unable to read this Access file. Use a .accdb or .mdb in the Dustin table layout.',
+          : 'Unable to read this file. Use an Access database or an Excel .xlsx workbook.',
       )
     } finally {
       setParsing(false)
     }
+  }
+
+  function onSelectSaved(profileId: string) {
+    setSelectedProfileId(profileId)
+    if (!workbook) return
+    if (!profileId) {
+      setDraft(suggestImportMapping(workbook, { name: draft?.name }).profile)
+      return
+    }
+    const saved = profilesQuery.data?.find((profile) => profile.importMappingProfileId === profileId)
+    if (!saved) return
+    setDraft(overlaySavedProfile(workbook, toProfile(saved)).profile)
   }
 
   const errorMessage =
@@ -86,7 +169,12 @@ export function AdminImportPage() {
     (importMutation.error instanceof ApiError
       ? importMutation.error.message
       : importMutation.error
-        ? 'Unable to import this database.'
+        ? 'Unable to import this file.'
+        : null) ??
+    (saveMutation.error instanceof ApiError
+      ? saveMutation.error.message
+      : saveMutation.error
+        ? 'Unable to save this layout.'
         : null)
 
   return (
@@ -99,23 +187,67 @@ export function AdminImportPage() {
       {errorMessage ? <p className={ui.text.errorBanner}>{errorMessage}</p> : null}
 
       <Card
-        title="Access database"
-        description="Upload a Dustin-shaped .accdb or .mdb. Import is only allowed when this organization has no clients yet. Username and password columns are not sent."
+        title="Broker file"
+        description="Upload an Access database or Excel workbook. Matching runs in this browser. Only the mapped rows are uploaded, and a saved layout stores column names, not client data. Import is only allowed when this organization has no clients yet."
       >
         <div className="space-y-4">
           <input
             ref={fileInputRef}
             type="file"
-            accept=".accdb,.mdb,application/msaccess,application/x-msaccess"
+            aria-label="Broker workbook"
+            accept=".accdb,.mdb,.xlsx,.xlsm,application/msaccess,application/x-msaccess,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100 dark:text-slate-300 dark:file:bg-indigo-950/60 dark:file:text-indigo-200"
             onChange={(event) => void onFileChange(event)}
           />
-          {parsing ? <p className={ui.text.mutedSm}>Reading Access file…</p> : null}
+          {parsing ? <p className={ui.text.mutedSm}>Reading file…</p> : null}
         </div>
       </Card>
 
-      {preview ? (
-        <Card title={preview.fileName} description="Review these counts, then import into this organization.">
+      {workbook && draft && stage === 'map' ? (
+        <Card title={workbook.fileName} description="Match the columns to BrokerBook, then review the counts.">
+          <ImportMappingCard
+            workbook={workbook}
+            draft={draft}
+            savedProfiles={profilesQuery.data ?? []}
+            selectedProfileId={selectedProfileId}
+            saving={saveMutation.isPending}
+            onChange={setDraft}
+            onSelectSaved={onSelectSaved}
+            onSave={() => {
+              const name = draft.name.trim()
+              if (!name) return
+              saveMutation.mutate({ ...draft, name })
+            }}
+            onReview={() => setStage('preview')}
+          />
+          {selectedProfileId ? (
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="danger"
+                disabled={deleteMutation.isPending}
+                onClick={() => {
+                  if (window.confirm('Delete this saved layout?')) {
+                    deleteMutation.mutate(selectedProfileId)
+                  }
+                }}
+              >
+                Delete saved layout
+              </Button>
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
+
+      {preview && draft ? (
+        <Card
+          title={preview.fileName}
+          description={
+            selectedProfileId
+              ? `Using the saved layout “${draft.name}”.`
+              : 'Review these counts, then import into this organization.'
+          }
+        >
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Count label="Clients" value={preview.clients} />
             <Count label="Medicare plans" value={preview.majorMedical} />
@@ -144,41 +276,59 @@ export function AdminImportPage() {
             <p className={`mt-4 ${ui.text.error}`}>
               No clients with a first and last name were found. Nothing will be imported.
             </p>
-          ) : (
-            <div className="mt-6 flex flex-wrap gap-3">
+          ) : null}
+          <div className="mt-6 flex flex-wrap gap-3">
+            {preview.clients > 0 ? (
               <Button
                 type="button"
                 loading={importMutation.isPending}
-                disabled={preview.clients === 0}
                 onClick={() => importMutation.mutate(preview)}
               >
                 <Upload className="h-4 w-4" />
                 Import into this organization
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={importMutation.isPending}
-                onClick={() => {
-                  setPreview(null)
-                  if (fileInputRef.current) fileInputRef.current.value = ''
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
+            ) : null}
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={importMutation.isPending}
+              onClick={() => setStage('map')}
+            >
+              Edit mapping
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={importMutation.isPending}
+              onClick={clearFile}
+            >
+              Cancel
+            </Button>
+          </div>
         </Card>
-      ) : !parsing && !successMessage ? (
+      ) : !parsing && !successMessage && !workbook ? (
         <Card>
           <EmptyState
             title="No file selected"
-            description="Choose the broker Access database to preview clients, plans, plan names, and contacts."
+            description="Choose an Access database or Excel workbook to match columns and preview clients, plans, and contacts."
           />
         </Card>
       ) : null}
     </div>
   )
+}
+
+function toProfile(dto: ImportMappingProfileDto): ImportMappingProfile {
+  return {
+    name: dto.name,
+    shape: dto.shape,
+    tables: dto.tables,
+    columns: dto.columns,
+  }
+}
+
+function toProfileWithId(dto: ImportMappingProfileDto) {
+  return { ...toProfile(dto), importMappingProfileId: dto.importMappingProfileId }
 }
 
 function Count({ label, value }: { label: string; value: number }) {
