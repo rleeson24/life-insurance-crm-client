@@ -29,7 +29,6 @@ export function Combobox({
   const listId = useId()
   const optionId = useId()
   const [open, setOpen] = useState(false)
-  const [highlightIndex, setHighlightIndex] = useState(0)
   const rootRef = useRef<HTMLDivElement>(null)
 
   const filtered = useMemo(() => {
@@ -42,9 +41,18 @@ export function Combobox({
     )
   }, [options, value])
 
-  useEffect(() => {
-    setHighlightIndex(0)
-  }, [filtered])
+  const [highlight, setHighlight] = useState({ items: filtered, index: 0 })
+  const highlightIndex = highlight.items === filtered ? highlight.index : 0
+
+  function setHighlightIndex(next: number | ((current: number) => number)) {
+    setHighlight((current) => {
+      const index = current.items === filtered ? current.index : 0
+      return {
+        items: filtered,
+        index: typeof next === 'function' ? next(index) : next,
+      }
+    })
+  }
 
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {

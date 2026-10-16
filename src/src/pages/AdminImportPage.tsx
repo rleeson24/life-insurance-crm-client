@@ -86,10 +86,6 @@ export function AdminImportPage() {
     },
   })
 
-  if (meQuery.isSuccess && !canManage) {
-    return <Navigate to="/" replace />
-  }
-
   const preview = useMemo(() => {
     if (!workbook || !draft || stage !== 'preview') return null
     const payload = applyImportMapping(workbook, draft)
@@ -99,6 +95,10 @@ export function AdminImportPage() {
       ...summarizeAccessImport(payload),
     }
   }, [workbook, draft, stage])
+
+  if (meQuery.isSuccess && !canManage) {
+    return <Navigate to="/" replace />
+  }
 
   function clearFile() {
     setWorkbook(null)

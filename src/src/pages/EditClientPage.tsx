@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -18,14 +18,10 @@ import {
 } from '@/components/clients/ClientForm'
 import { queryKeys } from '@/lib/queryKeys'
 import { ui } from '@/lib/uiClasses'
+import type { ClientDto } from '@/types/apiModels'
 
 export function EditClientPage() {
   const { id = '' } = useParams()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const [form, setForm] = useState<ClientFormValues | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const detailQuery = useQuery({
     queryKey: queryKeys.clientDetail(id),
@@ -33,11 +29,59 @@ export function EditClientPage() {
     enabled: Boolean(id),
   })
 
-  useEffect(() => {
-    if (detailQuery.data?.client) {
-      setForm(clientFormFromDto(detailQuery.data.client))
-    }
-  }, [detailQuery.data?.client])
+  const client = detailQuery.data?.client
+
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <Link to={`/clients/${id}`} className={ui.link.back}>
+        <ArrowLeft className="h-4 w-4" />
+        Back to client
+      </Link>
+
+      {client ? (
+        <EditClientEditor key={id} id={id} client={client} />
+      ) : detailQuery.isError || detailQuery.isSuccess ? (
+        <EmptyState
+          title="Client not found"
+          description="This client may have been removed or the link is invalid."
+          action={
+            <Link to="/clients" className={ui.link.accent}>
+              Return to clients
+            </Link>
+          }
+        />
+      ) : (
+        <Card>
+          <div className="space-y-6">
+            <div className={ui.surface.formSection}>
+              <Skeleton className="h-5 w-40" />
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+              </div>
+            </div>
+            <div className={ui.surface.formSection}>
+              <Skeleton className="h-5 w-24" />
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Skeleton className="h-10" />
+                <Skeleton className="h-10" />
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+function EditClientEditor({ id, client }: { id: string; client: ClientDto }) {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const [form, setForm] = useState<ClientFormValues>(() => clientFormFromDto(client))
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const updateMutation = useMutation({
     mutationFn: (values: ClientFormValues) =>
@@ -74,89 +118,48 @@ export function EditClientPage() {
     key: K,
     value: ClientFormValues[K],
   ) {
-    setForm((current) => (current ? { ...current, [key]: value } : current))
+    setForm((current) => ({ ...current, [key]: value }))
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!form) return
     setErrorMessage(null)
     updateMutation.mutate(form)
   }
 
-  const client = detailQuery.data?.client
-
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <Link to={`/clients/${id}`} className={ui.link.back}>
-        <ArrowLeft className="h-4 w-4" />
-        Back to client
-      </Link>
-
-      {detailQuery.isLoading || !form ? (
-        <Card>
-          <div className="space-y-6">
-            <div className={ui.surface.formSection}>
-              <Skeleton className="h-5 w-40" />
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-              </div>
-            </div>
-            <div className={ui.surface.formSection}>
-              <Skeleton className="h-5 w-24" />
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-              </div>
-            </div>
-          </div>
-        </Card>
-      ) : detailQuery.isError || !client ? (
-        <EmptyState
-          title="Client not found"
-          description="This client may have been removed or the link is invalid."
-          action={
-            <Link to="/clients" className={ui.link.accent}>
-              Return to clients
-            </Link>
-          }
-        />
-      ) : (
-        <Card>
-          <ClientForm
-            form={form}
-            onChange={updateField}
-            onSubmit={handleSubmit}
-            errorMessage={errorMessage}
-            actions={
-              <div className="flex flex-wrap items-center justify-between gap-3">
+    <>
+      <Card>
+        <ClientForm
+          form={form}
+          onChange={updateField}
+          onSubmit={handleSubmit}
+          errorMessage={errorMessage}
+          actions={
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Button
+                type="button"
+                variant="danger"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                Delete client
+              </Button>
+              <div className="flex flex-wrap gap-3">
                 <Button
                   type="button"
-                  variant="danger"
-                  onClick={() => setShowDeleteConfirm(true)}
+                  variant="secondary"
+                  onClick={() => navigate(`/clients/${id}`)}
                 >
-                  Delete client
+                  Cancel
                 </Button>
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => navigate(`/clients/${id}`)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" loading={updateMutation.isPending}>
-                    Save changes
-                  </Button>
-                </div>
+                <Button type="submit" loading={updateMutation.isPending}>
+                  Save changes
+                </Button>
               </div>
-            }
-          />
-        </Card>
-      )}
+            </div>
+          }
+        />
+      </Card>
 
       <ConfirmDialog
         open={showDeleteConfirm}
@@ -167,6 +170,6 @@ export function EditClientPage() {
         onConfirm={() => deleteMutation.mutate()}
         onCancel={() => setShowDeleteConfirm(false)}
       />
-    </div>
+    </>
   )
 }

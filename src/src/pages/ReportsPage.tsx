@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
@@ -226,18 +226,14 @@ export function ReportsPage() {
   const bookItems = bookQuery.data?.items ?? []
   const bookTotalPages = Math.max(1, Math.ceil(bookItems.length / bookPageSize))
   const currentBookPage = Math.min(bookPage, bookTotalPages)
-  const pagedBookItems = useMemo(() => {
-    const start = (currentBookPage - 1) * bookPageSize
-    return bookItems.slice(start, start + bookPageSize)
-  }, [bookItems, currentBookPage])
+  const bookStart = (currentBookPage - 1) * bookPageSize
+  const pagedBookItems = bookItems.slice(bookStart, bookStart + bookPageSize)
 
   const mailingItems = mailingQuery.data?.items ?? []
   const mailingTotalPages = Math.max(1, Math.ceil(mailingItems.length / bookPageSize))
   const currentMailingPage = Math.min(mailingPage, mailingTotalPages)
-  const pagedMailingItems = useMemo(() => {
-    const start = (currentMailingPage - 1) * bookPageSize
-    return mailingItems.slice(start, start + bookPageSize)
-  }, [mailingItems, currentMailingPage])
+  const mailingStart = (currentMailingPage - 1) * bookPageSize
+  const pagedMailingItems = mailingItems.slice(mailingStart, mailingStart + bookPageSize)
 
   const bookExportMutation = useMutation({
     mutationFn: () => exportBookOfBusinessReport(),
