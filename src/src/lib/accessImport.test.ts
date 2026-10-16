@@ -11,7 +11,12 @@ vi.mock('mdb-reader', () => ({
     }
 
     getTable() {
-      return { getData }
+      const rows = getData() ?? []
+      const columns = [...new Set(rows.flatMap((row: Record<string, unknown>) => Object.keys(row)))]
+      return {
+        getColumnNames: () => columns,
+        getData: () => rows,
+      }
     }
   },
 }))
@@ -52,7 +57,7 @@ describe('parseAccessDatabaseFile', () => {
         { ClientID: 1, First: 'Jane', Last: 'Doe' },
         { ClientID: 1, First: 'Dup', Last: 'Row' },
         { ClientID: 2, First: '', Last: 'Skip' },
-        { password: 'secret', ClientID: 3, First: 'Pat', Last: 'Lee' },
+        { password: 'secret', ClientID: 3, First: 'Pat', Last: 'Lee' }, // pragma: allowlist secret
       ])
       .mockReturnValueOnce([
         {

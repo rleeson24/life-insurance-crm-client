@@ -348,6 +348,33 @@ export interface AccessImportResultDto {
   warnings: string[]
 }
 
+export interface ImportMappingProfileDto {
+  importMappingProfileId: string
+  name: string
+  shape: 'normalized' | 'flat' | 'ledger'
+  tables: {
+    clients: string | null
+    medEnrollments: string | null
+    otherEnrollments: string | null
+    contacts: string | null
+    rows: string | null
+  }
+  columns: {
+    clients: Record<string, string>
+    medEnrollments: Record<string, string>
+    otherEnrollments: Record<string, string>
+    contacts: Record<string, string>
+    rows: Record<string, string>
+  }
+}
+
+export interface SaveImportMappingProfileModel {
+  name: string
+  shape: ImportMappingProfileDto['shape']
+  tables: ImportMappingProfileDto['tables']
+  columns: ImportMappingProfileDto['columns']
+}
+
 export interface BookOfBusinessRowDto {
   clientId: string
   firstName?: string | null

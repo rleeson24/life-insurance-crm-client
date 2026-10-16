@@ -32,7 +32,7 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   },
   '/admin/import': {
     title: 'Import',
-    subtitle: 'Load clients, plans, and contacts from an Access database',
+    subtitle: 'Load clients, plans, and contacts from Access or Excel',
   },
   '/admin/tenants': {
     title: 'Organizations',
