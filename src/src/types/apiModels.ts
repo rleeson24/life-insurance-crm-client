@@ -246,6 +246,14 @@ export interface TenantDto {
   name: string
   isActive: boolean
   clientCount: number
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  postalCode?: string | null
+  noticesEmail?: string | null
+  incidentContact?: string | null
+  incidentTelephone?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -287,11 +295,27 @@ export interface ListAuthSecurityEventsResult {
 
 export interface CreateTenantModel {
   name: string
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  postalCode?: string | null
+  noticesEmail?: string | null
+  incidentContact?: string | null
+  incidentTelephone?: string | null
 }
 
 export interface UpdateTenantModel {
   name?: string | null
   isActive?: boolean | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  postalCode?: string | null
+  noticesEmail?: string | null
+  incidentContact?: string | null
+  incidentTelephone?: string | null
 }
 
 export type PlanNameKind = 'medicare' | 'drug' | 'secondary'
